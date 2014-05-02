@@ -13,6 +13,8 @@ var dataset_selection_list = [];
 //jquery element that we will paint to -- parent pane
 var main_wordcloud_container;
 
+var selected_datasets = false;
+
 
 //Convenience variable for better intuitive reading of the code to indicate what kind of viz we are making
 var venncloud = false;
@@ -1155,7 +1157,7 @@ function paint_tokens(display, data, color) {
 };
 
 
-function draw_wordcloud(selected_datasets) {
+function draw_wordcloud() {
 
     console.log('hit draw' + selected_datasets);
     //selected_datasets = [0];//HARDCODE for testing
@@ -1322,7 +1324,8 @@ function initialize_wordcloud() {
 function dataset_selected() {
     var leftDatasetId = $('#left_dataset_selector')[0].value;
     var rightDatasetId = $('#right_dataset_selector')[0].value;
-    draw_wordcloud([leftDatasetId, rightDatasetId]);
+	selected_datasets = [leftDatasetId, rightDatasetId];
+	draw_wordcloud();
 }
 
 function defaulLeftClickHandler(token){
@@ -1349,7 +1352,8 @@ function make_me_a_venncloud(datasets, options) {
     var initialSelection = [];
     if (master_datasets.length > 0) initialSelection.push(0);
     if (master_datasets.length > 1) initialSelection.push(1);
-    draw_wordcloud(initialSelection);
+	selected_datasets = initialSelection;
+    draw_wordcloud();
 
     hide_example_windows();
 
