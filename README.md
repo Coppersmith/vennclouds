@@ -1,8 +1,13 @@
-Dynamic Wordclouds
+Dynamic Wordclouds and Vennclouds
 Developed at the Human Language Technology Center of Excellence, Johns Hopkins University
 Author: Glen Coppersmith (coppersmith@jhu.edu)
-Author: Erin Kelly (elky88@gmail.com)
+Author: Erin Kelly (elkelly8@gmail.com)
 Author: Aleksander Yelskiy (ayelskiy@gmail.com)
+
+If you use this, please cite the following paper:
+Glen Coppersmith and Erin Kelly (2014). Dynamic Wordclouds and Vennclouds for Exploratory Data Analysis.
+Association for Computational Linguistics Workshop on Interactive Language Learning and Visualization.
+
 
 
 [[This README is currently out of data, for usage instructions run:
