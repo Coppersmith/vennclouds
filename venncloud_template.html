@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+
+<hTmL>
+<head>
+
+    <script src="offline_source/jquery-1.8.3.js"></script>
+    <script src="offline_source/jquery-ui.js"></script>
+    <script src="offline_source/floating-1.12.js"></script>
+    <script src="dynamic_wordclouds.js"></script>
+
+
+    <link rel="stylesheet" href="offline_source/jquery-ui.css">
+    <link rel="stylesheet" href="offline_source/dynamic_wordclouds.css">
+</head>
+<body>
+<table width="600px">
+    <tr>
+        <td valign="top" width="100%">
+            <table border=1 cellspacing=0 cellpadding=3 width="100%">
+                <tr>
+                    <td align="center" onclick="hide_all_controls()" class="button">
+                        <b>[X]</b>
+                    </td>
+                    <td id="wordcloud_entities_button" class="button"
+                        width="75px" onclick="toggle_wordcloud_entities_buttons()"
+                        align="center">
+                        entities
+                    </td>
+                    <td id="common_cloud_control_button"
+                        width="75px" onclick="toggle_wordcloud_common_cloud_controls()"
+                        align="center" class="button">
+                        common cloud
+                    </td>
+                    <td id="frequency_filter_button"
+                        width="75px" onclick="toggle_wordcloud_frequency_filter()"
+                        align="center" class="button">
+                        tf filter
+                    </td>
+                    <td id="rarity_filter_button"
+                        width="75px" onclick="toggle_wordcloud_rarity_filter()"
+                        align="center" class="button">
+                        idf filter
+                    </td>
+                    <td id="size_control_button"
+                        width="75px" onclick="toggle_wordcloud_size_controls()"
+                        align="center" class="button">
+                        size controls
+                    </td>
+                    <td id="opacity_control_button"
+                        width="75px" onclick="toggle_wordcloud_opacity_controls()"
+                        align="center" class="button">
+                        opacity controls
+                    </td>
+                    <td id="wordcloud_sort_by_button"
+                        width="75px" onclick="toggle_wordcloud_sort_buttons()"
+                        align="center" class="button">
+                        sort by
+                    </td>
+                    <td id="wordcloud_description_button"
+                        width="75px" onclick="toggle_wordcloud_description()"
+                        align="center" class="button">
+                        legend
+                    </td>
+                    <td align="center" class="button">
+                        do not redraw <input type="checkbox" onclick="toggle_do_not_redraw_wordcloud()">
+                    </td>
+                    <td align="center" class="button">
+                        highlight keywords <input type="checkbox" onclick="toggle_highlight_keywords_wordcloud()">
+                    </td>
+                </tr>
+            </table>
+
+
+            <div id="wordcloud_common_cloud_controls"
+                 style="z-index:1; position:absolute; background-color:#ffffff; padding 5 spacing 5" class="menu">
+
+                <table width="300px" style="background-color:White;" id="menu_table">
+                    <tr style="background-color:#ffffff;">
+                        <td id="menu_td">
+                            -
+                        </td>
+                        <td id="menu_td" width="90%">
+                            <div id='common_cloud_controls'></div>
+                        </td>
+                        <td id="menu_td">
+                            +
+                        </td>
+                    </tr>
+                </table>
+            </div>
+
+
+            <div id="wordcloud_frequency_filter_controls"
+                 style="z-index:1; position:absolute; background-color:#ffffff; padding:5; spacing:5" class="menu">
+
+                <table width="300px" style="background-color:White;" id="menu_table">
+                    <tr style="background-color:#ffffff;">
+                        <td id="menu_td">
+                            <div id='required_observations_slider'></div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td id="menu_td">
+                            Required Times Observed:<span id="required_observations_out"></span>
+                        </td>
+                    </tr>
+                </table>
+            </div>
+
+            <div id="wordcloud_rarity_filter_controls"
+                 style="z-index:1; position:absolute; background-color:#ffffff; padding 5 spacing 5" class="menu">
+
+                <table width="300px" style="background-color:White;" id="menu_table">
+                    <tr style="background-color:#ffffff;">
+                        <td id="menu_td">
+                            <div id='required_idf_slider'></div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td id="menu_td">
+                            Occurs between <span id="required_idf_out">x</span> documents.
+                        </td>
+                    </tr>
+                </table>
+            </div>
+
+            <div id="wordcloud_size_controls"
+                 style="z-index:1; position:absolute; background-color:#ffffff; padding 5 spacing 5" class="menu">
+                <table width="400px" style="background-color:White;" id="menu_table">
+                    <tr style="background-color:#ffffff;">
+                        <td width="20%" align="left" id="menu_td"><b>Frequency: 0</b></td>
+                        <td width="75%" id="menu_td">
+                            <div id="size_frequency_slider"></div>
+                        </td>
+                        <td rowspan="2" width="10%" id="menu_td" align="center"><b>+</b></td>
+                    </tr>
+                    <tr>
+                        <td width="20%" align="left" id="menu_td"><b>Rarity: 0</b></td>
+                        <td id="menu_td">
+                            <div id="size_rarity_slider"></div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td id="menu_td">Smaller</td>
+                        <td id="menu_td">
+                            <div id="base_fontsize_slider"></div>
+                        </td>
+                        <td id="menu_td">Larger</td>
+                    </tr>
+                </table>
+            </div>
+
+            <div id="wordcloud_opacity_controls"
+                 style="z-index:1; position:absolute; background-color:#ffffff; padding 5 spacing 5" class="menu">
+                <table width="400px" style="background-color:White;" id="menu_table">
+                    <tr style="background-color:#ffffff;">
+                        <td width="20%" align="left" id="menu_td"><b>Frequency: <span align=right>0</span></b></td>
+                        <td width="80%" id="menu_td">
+                            <div id="opacity_frequency_slider"></div>
+                        </td>
+                        <td rowspan="2" width="10%" id="menu_td" align="center"><b>+</b></td>
+                    </tr>
+                    <tr>
+                        <td width="20%" align="left" id="menu_td"><b>Rarity: <span align=right>0</span></b></td>
+                        <td id="menu_td">
+                            <div id="opacity_rarity_slider"></div>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td id="menu_td">Light</td>
+                        <td id="menu_td">
+                            <div id="base_opacity_slider"></div>
+                        </td>
+                        <td id="menu_td">Dark</td>
+                    </tr>
+                </table>
+            </div>
+
+
+            <div id="wordcloud_sort_buttons"
+                 style="z-index:1; position:absolute; background-color:#ffffff; padding:5; spacing:5;" class="menu">
+                <table id="menu_table">
+                    <tr>
+                        <td id="menu_td">
+                            <div id="radio">
+                                <input type="radio" id="ALPHABETIC" name="radio" checked="checked"><label
+                                    for="ALPHABETIC">Alphabetic</label>
+                                <input type="radio" id="COUNT" name="radio"><label for="COUNT">Frequency of
+                                Occurence</label>
+                                <input type="radio" id="IDF" name="radio"><label for="IDF">Rarity in Corpus</label>
+                            </div>
+                        </td>
+                    </tr>
+                </table>
+            </div>
+
+            <div id="wordcloud_entities_buttons"
+                 style="z-index:1; position:absolute; background-color:#ffffff; padding:5; spacing:5;" class="menu">
+                <table id="menu_table">
+                    <tr>
+                        <td id="menu_td">
+                            <div id="entities_buttons">
+                                <input type="checkbox" id="display_plain_words" name="display_plain_words"
+                                       checked="checked"><label for="display_plain_words">Words</label></input>
+                                <input type="checkbox" id="display_user_mentions" name="display_user_mentions"
+                                       checked="checked"><label for="display_user_mentions">@Usernames</label></input>
+                                <input type="checkbox" id="display_hashtags" name="display_hashtags"
+                                       checked="checked"><label for="display_hashtags">#Hashtags</label></input>
+                            </div>
+                        </td>
+                    </tr>
+                </table>
+            </div>
+
+            <div id="wordcloud_description_output"
+                 style="z-index: 1; position:absolute; background:#ffffff; padding:5; spacing:5" class="menu">
+                Description of how wordcloud was computed goes here
+            </div>
+        </td>
+    </tr>
+</table>
+<br/>
+
+<div id='wordcloud_landing_zone'>Caution: Wordcloud Landing Zone</div>
+<!--<div id='wordcloud_example_zone'>Caution: Examples Landing Zone</div>-->
+
+<div id="floatdivright" style="  
+    position:absolute;  
+    width:350px;height:200px;top:10px;right:10px;  
+    padding:16px;background:#FFFFFF;  
+    border:2px solid #2266AA;  
+    z-index:100;
+    display: none">
+    <a href='javascript:;' onclick='hide_example_windows()'><b>[X]</b></a><BR>
+    <span id="examples_right">Examples go here.</span>
+</div>
+
+<div id="floatdivleft" style="  
+    position:absolute;  
+    width:350px;height:200px;top:10px;right:10px;  
+    padding:16px;background:#FFFFFF;  
+    border:2px solid #2266AA;  
+    z-index:100;
+    display: none">
+    <a href='javascript:;' onclick='hide_example_windows()'><b>[X]</b></a><BR>
+    <span id="examples_left">Examples go here.</span>
+</div>
+
+
+<script>
+    var red_query; //dictionary of relevant results
+    var blue_query;
+
+    [[[PARAMETERS_GO_HERE]]]
+
+    ////////////////////
+    // INITIALIZATION //
+    ////////////////////
+
+    make_me_a_venncloud(datasets, {'min_observations_required': 3, 'wordcloud_element': 'wordcloud_landing_zone'});
+
+</script>
+</body>
+</html>
