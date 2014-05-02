@@ -66,15 +66,17 @@ optional arguments:
 
 
 
-##############
+---
 Example Usage:
-##############
+---
 
-1) Single wordcloud:
+NB: These are currently out of date. Use python dynamic_wordclouds.py --help for better usage instructions
+
+1) Single dynamic wordcloud:
 python dynamic_wordclouds.py --black some_text_file.txt
 where `some_text_file.txt' has one document per line. This will calculate IDF and the wordcloud from the same set of documents (this is only advised if there are a large number of documents in this text file).
 
-2) Delta wordcloud ("Venn Cloud"):
+2) Venncloud:
 python dynamic_wordclouds.py --blue blue.txt --red red.txt
 where `blue.txt' and `red.txt' are plain text documents with one document per line. This will calculate IDF and the wordcloud from the same set of documents (this is only advised if there are a large number of documents in these text files).
 
