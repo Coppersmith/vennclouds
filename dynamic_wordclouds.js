@@ -803,7 +803,7 @@ function filter_for_idf(to_filter_dict) {
 function filter_for_characters(to_filter_dict) {
     $.each(Object.keys(to_filter_dict), function (index, key) {
         this_word_length = key.length;
-        if (this_word_length < s.min_req_chars || this_idf > s.max_req_chars) {
+        if (this_word_length < s.min_req_chars || this_word_length > s.max_req_chars) {
             delete to_filter_dict[key];
         }
     });
@@ -1354,6 +1354,10 @@ function compute_master_data(datasets) {
     //tmp = $( "#required_observations_slider" ).slider("values") || [s.min_req_tf,s.max_req_tf];
     tmp = [s.min_req_tf, s.max_req_tf];
     $("#required_observations_slider").slider("option", "values", tmp);
+
+    tmp = [s.min_req_chars, s.max_req_chars];
+    $("#required_characters_slider").slider("option", "values", tmp);
+    
 
     return datasets;
 }
