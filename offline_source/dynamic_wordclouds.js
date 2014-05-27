@@ -3,6 +3,9 @@
  -Fix wordcloud description
  */
 
+//Element containers
+var context_area = "";
+
 
 //Data containers
 var master_datasets = []; //All datasets encoded
@@ -13,7 +16,7 @@ var dataset_selection_list = [];
 //jquery element that we will paint to -- parent pane
 var main_wordcloud_container;
 
-var selected_datasets = false;
+var selected_datasets = [];
 
 
 //Convenience variable for better intuitive reading of the code to indicate what kind of viz we are making
@@ -23,7 +26,7 @@ var singlecloud = false;
 //Slider values and defaults go here, not all have been moved accross yet.
 var overall_max_observed = 0;
 var overall_min_idf_observed = 1;
-var overall_max_word_length_observed=1;
+
 
 //store the last computed settings and the settings we are about to compute as top level objects
 var last_computed_settings = {};
@@ -36,8 +39,6 @@ var s = {
     max_req_tf: 40000,
     min_req_idf: 0.0001,
     max_req_idf: 0.2,
-    min_req_chars: 1,
-    max_req_chars: 100,
     size_rarity_weight: 0.8,
     opacity_rarity_weight: 0.5,
     size_frequency_weight: 0.5,
@@ -45,7 +46,7 @@ var s = {
     base_fontsize: 30,
     base_opacity: 3,
     opacity_slider_max_value: 10,
-    sort_type: 'ALPHABETIC',
+    sort_type: 'COUNT',
     mean_counts: 1,
     mean_idf: 1,
     display_words: true,
@@ -83,6 +84,8 @@ var highlight_keywords = false;
 /**Example Windows**/
 /*******************/
 
+
+/*
 floatingMenu.add('floatdivright',
     {
         // Represents distance from left or right browser window
@@ -105,7 +108,7 @@ floatingMenu.add('floatdivright',
         // Remove this one if you don't want snap effect
         snap: true
     });
-
+*/
 floatingMenu.add('floatdivleft',
     {
         targetLeft: 10,
@@ -188,7 +191,7 @@ function initialize_wordcloud_controls() {
 
     $("#required_observations_slider").slider({range: true});
     $("#required_idf_slider").slider({range: true});
-    $("#required_characters_slider").slider({range: true});
+
 
     //Set up visibility controls
     hide_all_controls();
@@ -632,41 +635,6 @@ function initialize_wordcloud_controls() {
         update_required_idf_filter_display([1 / s.max_req_idf, 1 / s.min_req_idf]);
     });
 
-    function update_required_characters_filter_display(values) {
-        document.getElementById("required_characters_out").innerHTML = '[' + values[0] + ' , ' + values[1] + ']';
-    }
-
-    //begin Required Word Length
-    $(function () {
-        $("#required_characters_slider").slider({
-            range: true,
-            min: 1,
-            max: overall_max_word_length_observed,
-            step: 1,
-            value: [s.min_req_chars, s.max_req_chars],
-            change: function (event, ui) {
-                sli = $('#required_characters_slider');
-                var orig_value = sli.slider("values") || [s.min_req_chars, s.max_req_chars];
-                value = orig_value;
-
-                s.min_req_chars = value[0];
-                s.max_req_chars = value[1];
-                update_required_characters_filter_display([s.min_req_chars, s.max_req_chars]);
-                draw_wordcloud();
-
-            },
-            slide: function (event, ui) {
-                var tmp = $("#required_characters_slider").slider("values");
-                update_required_characters_filter_display(tmp);//TODO: fix for range
-            }
-        });
-        update_required_characters_filter_display([s.min_req_chars, s.max_req_chars]); // Maybe we want to display overall_max_observed instead?
-
-    });
-
-
-
-
     //end size slider
 
     //begin dynamic range
@@ -799,16 +767,6 @@ function filter_for_idf(to_filter_dict) {
     });
 };
 
-
-function filter_for_characters(to_filter_dict) {
-    $.each(Object.keys(to_filter_dict), function (index, key) {
-        this_word_length = key.length;
-        if (this_word_length < s.min_req_chars || this_idf > s.max_req_chars) {
-            delete to_filter_dict[key];
-        }
-    });
-};
-
 //TODO: Make a function to take an arbitrary number of dicts to filter, and filter on the sum of their tfs
 
 function filter_for_required_tf(to_filter_dicts) {
@@ -921,6 +879,7 @@ function filter_for_display_entities_types(to_filter) {
 
 
 //Sorting
+//TODO: Allow sorting on arbitrary variables.
 function sorter(to_sort, my_sort_type) {
     to_sort.sort(function (a, b) {
         return b['text'] < a['text']
@@ -944,19 +903,18 @@ function preference_sorter(to_sort) {
 
 //Size and Opacity calculations
 get_size = function (count, idf) {
-    weighted_by_count = count * (10 / overall_max_observed); //HARDCODE??
-    weighted_by_rarity_size = 1 / Math.log(1 / idf);
+    weighted_by_count = count * (100 / overall_max_observed); //HARDCODE??
+    //weighted_by_rarity_size = 1 / Math.log(1 / idf); //HARDCODE turned off
+    weighted_by_rarity_size = 1;
     weighted_size = s.base_fontsize; // A base size
-    //console.log(weighted_size, weighted_by_rarity_size, weighted_by_count, count, idf);
     weighted_size *= (1 - s.size_frequency_weight) + s.size_frequency_weight * weighted_by_count;
     weighted_size *= (1 - s.size_rarity_weight) + (s.size_rarity_weight * weighted_by_rarity_size);
-    //DEBUG.innerHTML = "~!" + (1-rarity_weight) * unweighted_by_rarity_size + "~~" + rarity_weight * idf + "!@!" + max_observed_count;
     if (weighted_size < 10) {
         return 10
     }
     ;
-    if (weighted_size > 60) {
-        return 60
+    if (weighted_size > 40) {
+        return 40
     }
     ;
     return(weighted_size)
@@ -997,9 +955,9 @@ function update_wordcloud() {
 };
 
 
-function prepare_wordcloud_data(selected_datasets) {
+//function prepare_wordcloud_data(selected_datasets) {
+function prepare_wordcloud_data() {
     //selected datasets is an array of length 1 or 2 indicating the index of the dataset(s) to be used
-
     //TODO:Move to where we switch modes
     //Determine whether we are working on one or two corpora
     singlecloud = false;
@@ -1017,8 +975,6 @@ function prepare_wordcloud_data(selected_datasets) {
     ;
 
 
-    console.log(selected_datasets)
-
     //Store the dataset(s) selected in current_data
     current_data = []; //Of size 1 for dynamic wordcloud, of size 3 for venncloud
     for (var j = 0, lenj = selected_datasets.length; j < lenj; j++) {
@@ -1027,8 +983,6 @@ function prepare_wordcloud_data(selected_datasets) {
         //Filter for idf,tf,entity types
         dat = filter_for_display_entities_types(dat);
         filter_for_idf(dat);
-
-	filter_for_characters(dat)
 
         current_data.push(dat);
     }
@@ -1193,7 +1147,7 @@ function paint_tokens(display, data, color) {
         attr.nodeValue = element_id;
         token_element.setAttributeNode(attr);
 
-        token_element.textContent = ' ' + t['text'] + ' ';
+        token_element.textContent = ' [' + t['text'] + '] ';
 
         token_element.style.fontSize = '2pt';
         token_element.style.color = color;
@@ -1208,13 +1162,17 @@ function paint_tokens(display, data, color) {
 
 function draw_wordcloud() {
 
+    //Prevent from running if we don't have datasets selected
+    if  (selected_datasets.length == 0){
+        return
+            };
     console.log('hit draw' + selected_datasets);
     //selected_datasets = [0];//HARDCODE for testing
     //selected_datasets = [0,1];//HARDCODE for testing
     display_index_in_master_data = selected_datasets;
 
 
-    prepare_wordcloud_data(selected_datasets);
+    prepare_wordcloud_data();
 
 
     //Actually put the words on the screen -- before they have been properly sized/opacitized
@@ -1234,8 +1192,8 @@ function draw_wordcloud() {
     var rightAvailableDatasets = '';
     var tempDatasetIndex;
     for (tempDatasetIndex in master_datasets){
-        leftAvailableDatasets += '<option value="'+tempDatasetIndex+'" '+((selected_datasets[0] == tempDatasetIndex)?'selected':'')+' >'+master_datasets[tempDatasetIndex].name+'</option>';
-        rightAvailableDatasets += '<option value="'+tempDatasetIndex+'" '+((selected_datasets[1] == tempDatasetIndex)?'selected':'')+'>'+master_datasets[tempDatasetIndex].name+'</option>';
+        leftAvailableDatasets += '<option value="'+tempDatasetIndex+'" '+((selected_datasets[0] == tempDatasetIndex)?'selected':'')+' >'+tempDatasetIndex+'</option>';
+        rightAvailableDatasets += '<option value="'+tempDatasetIndex+'" '+((selected_datasets[1] == tempDatasetIndex)?'selected':'')+'>'+tempDatasetIndex+'</option>';
     }
 
     var display = "<table width='100%'>";
@@ -1265,6 +1223,9 @@ function draw_wordcloud() {
     $('#left_dataset_selector').on('change', dataset_selected);
     $('#right_dataset_selector').on('change', dataset_selected);
 
+
+
+    
     //paint the tokens with defaults
     if (singlecloud) {
         display = $('span#commoncloud');
@@ -1281,18 +1242,55 @@ function draw_wordcloud() {
     // Call update to get actual values correct
     update_wordcloud();
 
+    //Handlers were lost when wordcloud was redrawn
+    var wordcloud_element = s.wordcloud_element || 'wordcloud_landing_zone';
+    main_wordcloud_container = $('#' + wordcloud_element);
+    //var context_area = $('#' + wordcloud_element + '>table>tbody');
+    context_area = $('#' + wordcloud_element + '>table>tbody');
+    add_handlers(context_area);
+    
     // Turn the display on
     main_wordcloud_container.show();
 
 
 }
+
+
+function update_displayed_token(old_token, new_token){
+    console.log("updating "+old_token+" with "+new_token);
+    //Loop through each dataset and update the token
+    for (var j in master_datasets){
+        dataset = master_datasets[j].tokens;
+        console.log(dataset);
+        //TODO: this does not properly update and combine tokens!!
+        if (old_token in dataset){
+            dataset[old_token].text = new_token;
+            master_datasets[j].tokens[new_token] = dataset[old_token];
+            delete master_datasets[j].tokens[old_token];
+        };
+    };
+    draw_wordcloud();
+};
+
+
+function junk_displayed_token(old_token){
+    console.log("junking "+old_token);
+    //Loop through each dataset and remove the token
+    for (var j in master_datasets){
+        dataset = master_datasets[j].tokens;
+        if (old_token in dataset){
+            delete master_datasets[j].tokens[old_token];
+        };
+    };
+    draw_wordcloud();
+};
+
 var counts = [];
 function compute_master_data(datasets) {
     var idfs = [];
 
-
     //Add fields to each dataset
-    for (var j = 0, lenj = datasets.length; j < lenj; j += 1) {
+    for (var j in datasets) {
         var dataset = datasets[j];
         var tokens = dataset['tokens'];
         var num_tokens = dataset['num_tokens'];
@@ -1310,11 +1308,9 @@ function compute_master_data(datasets) {
             tokens[i].prop_docs = tf / num_documents;
             tokens[i].prop_tokens = tf / num_tokens;
             tok_rep[token] = tokens[i];
-
             //update max and mins observed if needed
             (tf > overall_max_observed) ? overall_max_observed = tf : null; //This is slightly different from the last iteration
             (idf < overall_min_idf_observed) ? overall_min_idf_observed = idf : null;
-	    (token.length > overall_max_word_length_observed) ? overall_max_word_length_observed = token.length: null;
 
         }
         //Convert all master data arrays to dictionaries keyed on tokens
@@ -1323,11 +1319,15 @@ function compute_master_data(datasets) {
     }
     //Put anything here we can precompute on load for all datasets, independent of view.
 
+
+    
+    master_datasets = datasets;
+    //TODO: Something breaks between here and the end of the function
+    
     mean_counts = sum(counts) / counts.length;
     mean_idf = sum(idfs) / idfs.length;
     counts.sort();
     //Something here can figure out how many words we want to display overall
-    //s.min_req_tf = counts[Math.floor(counts.length/2)] * 2;
     if (counts.length > 500) {
         s.min_req_tf = counts[Math.floor(counts.length) - 500];
     }
@@ -1338,30 +1338,22 @@ function compute_master_data(datasets) {
     if (s.max_req_tf > overall_max_observed) {
         s.max_req_tf = overall_max_observed;
     }
-    if (s.max_req_chars > overall_max_word_length_observed) {
-        s.max_req_chars = overall_max_word_length_observed;
-    }
 
     $("#required_observations_slider").slider("option", "max", overall_max_observed);
     $("#required_idf_slider").slider("option", "max", 1 / overall_min_idf_observed);
-    $("#required_characters_slider").slider("option", "max", overall_max_word_length_observed);
 
-    //////var tmp = $( "#required_idf_slider" ).slider("values",(1/overall_min_idf_observed)/4);
-    //////$( "#required_idf_slider" ).slider("option","value",tmp || (1/overall_min_idf_observed)/4);
     tmp = [1 / s.max_req_idf, 1 / s.min_req_idf];
     $("#required_idf_slider").slider("option", "values", tmp);
 
-    //tmp = $( "#required_observations_slider" ).slider("values") || [s.min_req_tf,s.max_req_tf];
     tmp = [s.min_req_tf, s.max_req_tf];
     $("#required_observations_slider").slider("option", "values", tmp);
 
-    return datasets;
 }
 function add_handlers(zone) {
     //console.log("Z:",zone);
     zone.on("click", function (e) {
         e = e || Event;
-        s.onclick_function(e.target.innerHTML.trim())
+        s.onclick_function(e.target.innerHTML.trim().replace("[","").replace("]",""));
     });
     zone.on("contextmenu", function (e) {
         e = e || Event;
@@ -1369,12 +1361,14 @@ function add_handlers(zone) {
         return false;
     });
 }
+        /*
 function initialize_wordcloud() {
     required_idf = overall_min_idf_observed;
     required_observations = 4;
     compute_master_data(); //Actually compute it here.
 }
-
+        */
+        
 function dataset_selected() {
     var leftDatasetId = $('#left_dataset_selector')[0].value;
     var rightDatasetId = $('#right_dataset_selector')[0].value;
@@ -1386,33 +1380,36 @@ function defaulLeftClickHandler(token){
     default_example_onclick(token);
 }
 function defaulRightClickHandler(token){
-
 }
 
 function make_me_a_venncloud(datasets, options) {
     //Datasets is always an array of token dictionaries
+
+    //selected_datasets = [0,1]; //HARDCODE
 
     var min_observations_required = options.min_observations_required || 2;
     //var onclick_function=function(token){} || options.click;
     s.onclick_function = options.click || defaulLeftClickHandler;
     s.oncontextclick_function = options.contextclick || defaulRightClickHandler;
 
-    var wordcloud_element = options.wordcloud_element || 'wordcloud_location';
+    var wordcloud_element = options.wordcloud_element || 'wordcloud_landing_zone';
 
     initialize_wordcloud_controls();
 
-    master_datasets = compute_master_data(datasets);
+    compute_master_data(datasets);
 
     var initialSelection = [];
-    if (master_datasets.length > 0) initialSelection.push(0);
-    if (master_datasets.length > 1) initialSelection.push(1);
-	selected_datasets = initialSelection;
+    for (var j in master_datasets){
+        if (initialSelection.length < 2) {
+            initialSelection.push(j);
+        }};
+    selected_datasets = initialSelection;
     draw_wordcloud();
-
-    hide_example_windows();
-
+    
+    //hide_example_windows();
+    
     main_wordcloud_container = $('#' + wordcloud_element);
-    var context_area = $('#' + wordcloud_element + '>table>tbody');
+    //var context_area = $('#' + wordcloud_element + '>table>tbody');
+    context_area = $('#' + wordcloud_element + '>table>tbody');
     add_handlers(context_area);
-
 }
