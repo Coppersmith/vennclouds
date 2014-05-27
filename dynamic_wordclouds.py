@@ -6,6 +6,7 @@ except:
     import json
 
 
+#TODO: make min-requirements adjustable via command line parameter
 
 wd = './' #TODO: what do we want the wd to be?
 
@@ -239,7 +240,7 @@ def create_dynamic_wordclouds(input_locs, idf, output_loc, from_text_files=True,
         
     #Remove all tokens that don't occur often enough
     for token in all_tokens:
-        if count_token_occurences(token) < 3: #HARDCODE
+        if count_token_occurences(token) < minimum_frequency:
             remove_token(token)
         
     #Replace TF and Examples with the full encoded dataset
@@ -351,8 +352,9 @@ if __name__ == '__main__':
         parser = argparse.ArgumentParser(description='Create a Venncloud html file.')
         parser.add_argument('--output',action='store',help='Where the output html file should be written.',default='generated_wordcloud.html')
         parser.add_argument('--idf',action='store',help='Location of an idf vector to be used, as a JSON file of a python dictionary -- see `create_idf_vector.py` to make one. If this argument is omitted, we will generate the idf vector from the red and blue documents.',default=None)
-        parser.add_argument('--examples',action='store',help='Number of examples of each word to store.',default=5)
-        parser.add_argument('--window',action='store',help='Window size on each side for each example, in number of tokens.',default=5)
+        parser.add_argument('--examples',action='store',help='Number of examples of each word to store [defaults to 5].',default=5)
+        parser.add_argument('--window',action='store',help='Window size on each side for each example, in number of tokens [defaults to 5].',default=5)
+        parser.add_argument('--minimum-frequency',action='store',help='Minimum occurences of a word included in the venncloud data [defaults to 3].',default=3)
         parser.add_argument('documents', metavar='N', nargs='+',
                             help='Location of the documents for the datasets to be loaded -- plain text, 1 document per line.')
 
@@ -363,6 +365,7 @@ if __name__ == '__main__':
         idf_loc = args['idf']
         num_examples = int(args['examples'])
         example_window = int(args['window'])
+        minimum_frequency = int(args['minimum_frequency'])
         
 
         
