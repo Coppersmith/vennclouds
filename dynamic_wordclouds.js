@@ -148,28 +148,8 @@ function default_example_onclick(token) {
 
     show_example_windows();
 }
-function hide_all_controls() {
-    $('#wordcloud_common_cloud_controls').hide();
-    common_cloud_controls_visible = false;
-    $('#wordcloud_frequency_filter_controls').hide();
-    frequency_filter_visible = false;
-    $('#wordcloud_rarity_filter_controls').hide();
-    rarity_filter_visible = false;
-    $('#wordcloud_sort_buttons').hide();
-    sort_buttons_visible = false;
-    $('#wordcloud_entities_buttons').hide();
-    wordcloud_entities_buttons_visible = false;
-    $('#wordcloud_opacity_controls').hide();
-    opacity_controls_visible = false;
-    $('#wordcloud_size_controls').hide();
-    size_controls_visible = false;
-    //$('#wordcloud_description_output').hide();
-    //wordcloud_description_visible = false;
-
-}
 function hide_all_windows() {
-    hide_example_windows();
-    hide_all_controls();
+   hide_example_windows();
 }
 
 function initialize_wordcloud_controls() {
@@ -190,167 +170,6 @@ function initialize_wordcloud_controls() {
     $("#required_idf_slider").slider({range: true});
     $("#required_characters_slider").slider({range: true});
 
-    //Set up visibility controls
-    hide_all_controls();
-    toggle_wordcloud_common_cloud_controls = function () {
-        disp = $('#wordcloud_common_cloud_controls')
-        if (common_cloud_controls_visible) {
-            disp.hide();
-            common_cloud_controls_visible = false;
-        }
-        else {
-            hide_all_controls();
-            button_loc = $('#common_cloud_control_button')[0].getBoundingClientRect();
-            x = button_loc.right;
-            y = button_loc.bottom;
-            disp[0].style.top = y;
-            disp[0].style.left = x + 5;
-            disp.show('slideDown');
-            common_cloud_controls_visible = true;
-        }
-        ;
-    };
-
-
-    toggle_wordcloud_frequency_filter = function () {
-        disp = $('#wordcloud_frequency_filter_controls')
-        if (frequency_filter_visible) {
-            disp.hide();
-            frequency_filter_visible = false;
-        }
-        else {
-            hide_all_controls();
-            button_loc = $('#frequency_filter_button')[0].getBoundingClientRect();
-            x = button_loc.right;
-            y = button_loc.bottom;
-            disp[0].style.top = y;
-            disp[0].style.left = x + 5;
-            disp.show('slideDown');
-            frequency_filter_visible = true;
-        }
-        ;
-    };
-
-
-    toggle_wordcloud_rarity_filter = function () {
-        disp = $('#wordcloud_rarity_filter_controls')
-        if (rarity_filter_visible) {
-            disp.hide();
-            rarity_filter_visible = false;
-        }
-        else {
-            hide_all_controls();
-            button_loc = $('#rarity_filter_button')[0].getBoundingClientRect();
-            x = button_loc.right;
-            y = button_loc.bottom;
-            disp[0].style.top = y;
-            disp[0].style.left = x + 5;
-            disp.show('slideDown');
-            rarity_filter_visible = true;
-        }
-        ;
-    };
-
-
-    toggle_wordcloud_sort_buttons = function () {
-        disp = $('#wordcloud_sort_buttons');
-        if (sort_buttons_visible) {
-            sort_buttons_visible = false;
-            disp.hide();
-        }
-        else {
-            hide_all_controls();
-            button_loc = $('#wordcloud_sort_by_button')[0].getBoundingClientRect();
-            x = button_loc.right;
-            y = button_loc.bottom;
-            disp[0].style.top = y;
-            disp[0].style.left = x + 5;
-            disp.show('slideDown');
-            sort_buttons_visible = true;
-        }
-        ;
-    };
-
-
-    toggle_wordcloud_entities_buttons = function () {
-        disp = $('#wordcloud_entities_buttons')
-        if (wordcloud_entities_buttons_visible) {
-            disp.hide();
-            wordcloud_entities_buttons_visible = false;
-        }
-        else {
-            hide_all_controls();
-            button_loc = $('#wordcloud_entities_button')[0].getBoundingClientRect();
-            x = button_loc.right;
-            y = button_loc.bottom;
-            disp[0].style.top = y;
-            disp[0].style.left = x + 5;
-            disp.show('slideDown');
-            wordcloud_entities_buttons_visible = true;
-        }
-        ;
-    };
-
-
-    toggle_wordcloud_opacity_controls = function () {
-        disp = $('#wordcloud_opacity_controls')
-        if (opacity_controls_visible) {
-            disp.hide();
-            opacity_controls_visible = false;
-        }
-        else {
-            hide_all_controls();
-            button_loc = $('#opacity_control_button')[0].getBoundingClientRect();
-            x = button_loc.right;
-            y = button_loc.bottom;
-            disp[0].style.top = y;
-            disp[0].style.left = x + 5;
-            disp.show('slideDown');
-            opacity_controls_visible = true;
-        }
-        ;
-    };
-
-
-    toggle_wordcloud_size_controls = function () {
-        disp = $('#wordcloud_size_controls')
-        if (size_controls_visible) {
-            disp.hide();
-            size_controls_visible = false;
-        }
-        else {
-            hide_all_controls();
-            button_loc = $('#size_control_button')[0].getBoundingClientRect();
-            x = button_loc.right;
-            y = button_loc.bottom;
-            disp[0].style.top = y;
-            disp[0].style.left = x + 5;
-            disp.show('slideDown');
-            size_controls_visible = true;
-        }
-        ;
-    };
-
-
-    toggle_wordcloud_description = function () {
-        disp = $('#wordcloud_description_output')
-        if (wordcloud_description_visible) {
-            disp.hide();
-            wordcloud_description_visible = false;
-        }
-        else {
-            hide_all_controls();
-            button_loc = $('#wordcloud_description_button')[0].getBoundingClientRect();
-            x = button_loc.right;
-            y = button_loc.bottom;
-            disp[0].style.top = y;
-            disp[0].style.left = x + 5;
-            disp.show('slideDown');
-            wordcloud_description_visible = true;
-        }
-        ;
-    };
-
 
     ///////////////////
     // USER CONTROLS //
@@ -369,21 +188,6 @@ function initialize_wordcloud_controls() {
         draw_wordcloud();
     };
 
-    /*
-     $(function() {
-     $( "#common_cloud_controls" ).slider();
-     $( "#common_cloud_controls" ).slider("option","max",s.center_threshold_max);
-     $( "#common_cloud_controls" ).slider("option","min",s.center_threshold_min);
-     //$( "#common_cloud_controls" ).slider("option","step",(s.center_threshold_max - s.center_threshold_min) /center_threshold_steps);
-     $( "#common_cloud_controls" ).slider("option","step",s.center_step);
-     $( "#common_cloud_controls" ).slider("option","value",s.center_threshold);
-     $( "#common_cloud_controls" ).slider({
-     slide: function(event,ui){common_cloud_change(event,ui)},
-     change: function(event,ui){common_cloud_change(event,ui)}
-     });
-
-     });
-     */
     $(function () {
         $("#common_cloud_controls").slider({
             "max": s.center_threshold_max,
@@ -406,24 +210,6 @@ function initialize_wordcloud_controls() {
         s.size_rarity_weight = $('#size_rarity_slider').slider("values", 0);
         update_wordcloud();
     }
-    /*
-     $(function() {
-     $( "#size_rarity_slider" ).slider();
-     $( "#size_rarity_slider" ).slider("option","min",0);
-     $( "#size_rarity_slider" ).slider("option","max",1);
-     $( "#size_rarity_slider" ).slider("option","step",0.01);
-     $( "#size_rarity_slider" ).slider("option","value",s.size_rarity_weight);
-
-     $( "#size_rarity_slider" ).slider({
-     slide: function( event, ui ) {
-     size_rarity_update_change(event,ui);
-     },
-     change:function( event, ui ) {
-     size_rarity_update_change(event,ui);
-     }
-     });
-     });
-     */
     $(function () {
         $("#size_rarity_slider").slider({
             "min": 0,
@@ -446,20 +232,6 @@ function initialize_wordcloud_controls() {
         s.opacity_rarity_weight = 1 - value;
         update_wordcloud();
     }
-    /*
-     $(function() {
-     $( "#opacity_rarity_slider" ).slider();
-     $( "#opacity_rarity_slider" ).slider("option","min",0);
-     $( "#opacity_rarity_slider" ).slider("option","max",1);
-     $( "#opacity_rarity_slider" ).slider("option","step",0.01);
-     $( "#opacity_rarity_slider" ).slider("option","value",1-s.opacity_rarity_weight);
-
-     $( "#opacity_rarity_slider" ).slider({
-     slide: function( event, ui ) { opacity_rarity_change(event,ui);},
-     change: function( event, ui ) { opacity_rarity_change(event,ui);},
-     });
-     });
-     */
     $(function () {
         $("#opacity_rarity_slider").slider({
             "min": 0,
@@ -484,21 +256,6 @@ function initialize_wordcloud_controls() {
         update_wordcloud();
     }
 
-    /*
-     $(function() {
-     $( "#size_frequency_slider" ).slider();
-     $( "#size_frequency_slider" ).slider("option","min",0);
-     $( "#size_frequency_slider" ).slider("option","max",1);
-     $( "#size_frequency_slider" ).slider("option","step",0.01);
-     $( "#size_frequency_slider" ).slider("option","value",s.size_frequency_weight);
-
-     $( "#size_frequency_slider" ).slider({
-     slide: function(event,ui){size_frequency_change(event,ui)},
-     change: function(event,ui){size_frequency_change(event,ui)}
-     });
-
-     });
-     */
     $(function () {
         $("#size_frequency_slider").slider({
             "min": 0,
@@ -739,7 +496,7 @@ function initialize_wordcloud_controls() {
 
     //end dynamic range sliders
 
-    hide_all_controls();
+    //hide_all_controls();
 
 } //End of initialize_wordcloud_controls
 //What year is this that sum() is not defined by default!? --GAC
