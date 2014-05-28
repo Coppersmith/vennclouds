@@ -148,6 +148,8 @@ function default_example_onclick(token) {
 
     show_example_windows();
 }
+
+//Wrapper function, in case we have any other windows
 function hide_all_windows() {
    hide_example_windows();
 }
@@ -311,7 +313,21 @@ function initialize_wordcloud_controls() {
     //end count slider
 
     function update_required_tf_filter_display(values) {
-        document.getElementById("required_observations_out").innerHTML = '[' + values[0] + ' , ' + values[1] + ']';
+        //document.getElementById("required_observations_out").innerHTML = '[' + values[0] + ' , ' + values[1] + ']';
+
+        // min value
+        var min = $( "#min_required_observations" );
+        if(min.attr('data-mode')==='input')
+            min.find('input').val(values[ 0 ]);
+        else
+            min.text(values[ 0 ]);
+
+        // max value
+        var max = $( "#max_required_observations" );
+        if(max.attr('data-mode')==='input')
+            max.find('input').val(values[ 1 ]);
+        else
+            max.text(values[ 1 ]);
     }
 
     //begin Required Observations slider
@@ -350,12 +366,92 @@ function initialize_wordcloud_controls() {
         //update_required_tf_filter_display($("required_observations_slider").slider("values"));
         update_required_tf_filter_display([s.min_req_tf, s.max_req_tf]); // Maybe we want to display overall_max_observed instead?
 
+        // attach click handlers to result display
+        $( "#min_required_observations" ).on('click', function(event) { sliderValueInputHandler(event); });
+        $( "#max_required_observations" ).on('click', function(event) { sliderValueInputHandler(event); });
+	
     });
+
+
+    function sliderValueInputHandler(event, conversionFunction){
+
+        conversionFunction = conversionFunction || function(value) {return value;};
+
+        var fieldValue;
+        var targetElement = $(event.target);
+        if(targetElement.attr('data-mode') === 'text') {
+            // get field value
+            fieldValue = targetElement.text();
+            // change "mode" attribute
+            targetElement.attr('data-mode', 'input');
+            // remove all child nodes
+            targetElement.empty();
+            // append an input node
+            targetElement.append('<input />');
+
+            var newInput = targetElement.find('input');
+            // set value into input
+            newInput.val(fieldValue);
+            // attach change handler
+            newInput.on('change',function(event){
+                var eSlider = $(targetElement.attr('data-for'));
+                var type = targetElement.attr('data-range-element');
+                var currentValues;
+                switch (type) {
+                    case 'min':
+                    {
+                        currentValues = eSlider.slider('values');
+                        eSlider.slider('option', 'values', [ conversionFunction(newInput.val()), currentValues[1]]);
+                        break;
+                    }
+                    case 'max':
+                    {
+                        currentValues = eSlider.slider('values');
+                        eSlider.slider('option', 'values', [ currentValues[0], conversionFunction(newInput.val())]);
+                        break;
+                    }
+                    default:
+                    {
+                        eSlider.slider('option', 'value', conversionFunction(newInput.val()));
+                        break;
+                    }
+
+                }
+
+            });
+            newInput.on('blur', function(event){
+                // revert back to text
+                fieldValue = newInput.val();
+                // change "mode" attribute
+                targetElement.attr('data-mode', 'text');
+                // remove handlers
+                newInput.off();
+                // remove all child nodes
+                targetElement.empty();
+                // set text
+                targetElement.text(fieldValue);
+            });
+        }
+    }
 
     //begin Required IDF slider
     function update_required_idf_filter_display(values) {
-        var disp = '[' + Math.floor(values[0]) + ' , ' + Math.floor(values[1]) + ']';
-        document.getElementById("required_idf_out").innerHTML = disp;
+        //var disp = '[' + Math.floor(values[0]) + ' , ' + Math.floor(values[1]) + ']';
+        //document.getElementById("required_idf_out").innerHTML = disp;
+
+        // min value
+        var min = $( "#min_required_idf" );
+        if(min.attr('data-mode')==='input')
+            min.find('input').val(Math.floor(values[0]));
+        else
+            min.text(Math.floor(values[0]));
+
+        // max value
+        var max = $( "#max_required_idf" );
+        if(max.attr('data-mode')==='input')
+            max.find('input').val(Math.floor(values[1]));
+        else
+            max.text(Math.floor(values[1]));
     }
 
     $(function () {
@@ -387,10 +483,29 @@ function initialize_wordcloud_controls() {
             }
         });
         update_required_idf_filter_display([1 / s.max_req_idf, 1 / s.min_req_idf]);
+
+        // attach click handlers to result display
+        $( "#min_required_idf" ).on('click', function(event) { sliderValueInputHandler(event); });
+        $( "#max_required_idf" ).on('click', function(event) { sliderValueInputHandler(event); });
+
+
     });
 
     function update_required_characters_filter_display(values) {
-        document.getElementById("required_characters_out").innerHTML = '[' + values[0] + ' , ' + values[1] + ']';
+
+        // min value
+        var min = $( "#min_required_characters" );
+        if(min.attr('data-mode')==='input')
+            min.find('input').val(values[ 0 ]);
+        else
+            min.text(values[ 0 ]);
+
+        // max value
+        var max = $( "#max_required_characters" );
+        if(max.attr('data-mode')==='input')
+            max.find('input').val(values[ 1 ]);
+        else
+            max.text(values[ 1 ]);
     }
 
     //begin Required Word Length
@@ -418,6 +533,11 @@ function initialize_wordcloud_controls() {
             }
         });
         update_required_characters_filter_display([s.min_req_chars, s.max_req_chars]); // Maybe we want to display overall_max_observed instead?
+
+        // attach click handlers to result display
+        $( "#min_required_characters" ).on('click', function(event) { sliderValueInputHandler(event); });
+        $( "#max_required_characters" ).on('click', function(event) { sliderValueInputHandler(event); });
+
 
     });
 
@@ -885,7 +1005,7 @@ function idf_opacity_weight_str() {
 function add_description_to_display() {
     var d = "";
     d += "Words displayed occur at least " + s.min_req_tf + " and at most " + s.max_req_tf + " times in the query.<BR>";
-    d += "Words displayed occur in fewer than " + Math.floor(1 / s.max_req_idf) + " and more than " + Math.floor(1 / s.min_req_idf) + " documents in the whole corpus.<BR>";
+    d += "Words displayed occur in fewer than " + Math.floor(1 / s.min_req_idf) + " and more than " + Math.floor(1 / s.max_req_idf) + " documents in the whole corpus.<BR>";
 
     if (s.size_frequency_weight > 0) {
         if (s.size_rarity_weight > 0) {

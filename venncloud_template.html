@@ -75,7 +75,7 @@
 		Occurences filter
 		<span class="caret"></span>
               </button>
-              <ul class="dropdown-menu" role="menu">
+              <ul class="dropdown-menu" role="menu" id="required_observations_menu">
 		<table style="margin-left: 1em; margin-right: 1em; width: 300px;">
                   <tr>
                     <td>
@@ -84,7 +84,11 @@
                   </tr>
                   <tr>
                     <td>
-                      Required Times Observed:<span id="required_observations_out"></span>
+                      Required Times Observed: [
+                      <span id="min_required_observations" data-for="#required_observations_slider" data-range-element="min" data-mode="text"></span>
+                      ,
+                      <span id="max_required_observations" data-for="#required_observations_slider" data-range-element="max" data-mode="text"></span>
+                      ]
                     </td>
                   </tr>
 		</table>
@@ -103,8 +107,12 @@
                     </td>
                   </tr>
                   <tr>
-                    <td>
-                      Occurs between <span id="required_idf_out">x</span> documents.
+		    <td>
+                      Occurs between [
+                      <span id="min_required_idf" data-for="#required_idf_slider" data-range-element="min" data-mode="text"></span>
+                      ,
+                      <span id="max_required_idf" data-for="#required_idf_slider" data-range-element="max" data-mode="text"></span>
+                      ]  documents.
                     </td>
                   </tr>
 		</table>
@@ -123,8 +131,13 @@
                     </td>
                   </tr>
                   <tr>
-                    <td>
-                      Required Characters:<span id="required_characters_out"></span>
+                  <tr>
+		    <td>
+                      Has between between [
+                      <span id="min_required_characters" data-for="#required_characters_slider" data-range-element="min" data-mode="text"></span>
+                      ,
+                      <span id="max_required_characters" data-for="#required_characters_slider" data-range-element="max" data-mode="text"></span>
+                      ]  characters.
                     </td>
                   </tr>
 		</table>
