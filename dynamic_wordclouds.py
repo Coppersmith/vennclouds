@@ -6,7 +6,6 @@ except:
     import json
 
 
-#TODO: make min-requirements adjustable via command line parameter
 
 wd = './' #TODO: what do we want the wd to be?
 
@@ -36,10 +35,11 @@ def tokenize( s, as_set=False ):
     else:
         return []
    """
-#TODO allow different striping regex options
+#TODO allow different stripping regex options
 #stripper_ex = re.compile(ur"http[s]{0,1}://\S+|[\b\W]",re.UNICODE)
 stripper_ex = re.compile(ur"http[s]{0,1}://\S+|[ ,.\"!:;\-&*\(\)\[\]]",re.UNICODE)
 def tokenize( s, as_set=False ):
+    """ Our default tokenization scheme, splitting by what python's `.strip()` function does. """
     if s:
         if as_set:
             #return list(set(text_URL_ex.findall(s.strip())))
@@ -58,6 +58,9 @@ def convert(s):
 
 #TODO: use unidecode as a backoff
 def normalize( s ):
+    """ Our default normalization scheme, lowercasing everything, and hopefully fixing unicode issues.
+    TODO: a wide range of Unicode issues exist, and they need to be dealt with as they arise.
+    TODO: As a last resort, we should use `unidecode` to clean this up """
     try:
         #a = unicode(s,'unicode-escape')
         a = unicode(s)
@@ -86,6 +89,10 @@ def normalize( s ):
 
 import random as reservoir_random
 reservoir_random.seed(11223344)
+
+######################################################################
+# Functions for counting up tokens and associated summary statistics #
+######################################################################
 
 df = {}
 def add_string_to_idf_vector(s,df=df):
@@ -168,7 +175,10 @@ def create_idf_vector_from_doc_locs(doc_locs, one_doc_per_line=True, required_co
 
 
 def create_token_vector(tf_vector,idf_vector,examples,other_scores={}):
-    """TODO: Documentation"""
+    """Combine the disparate data and scores we have for each token into 
+    one element. 
+    This is ostensibly to be encoded into JSON and available via the JavaScript
+    front end"""
     tokens = []
     for token,tf in tf_vector.items():
         idf = idf_vector.get(token,1)
@@ -184,19 +194,37 @@ def create_token_vector(tf_vector,idf_vector,examples,other_scores={}):
     return tokens
     
 
-##############################
-# Dynamic Wordcloud creation #
-##############################
+############################################
+# Dynamic Wordcloud and Venncloud creation #
+############################################
 
-def create_dynamic_wordclouds(input_locs, idf, output_loc, from_text_files=True, max_examples=5, dataset_names=[]):
+def create_dynamic_wordclouds(input_locs, idf, output_loc, from_text_files=True, max_examples=5, 
+                              dataset_names=[], template_loc = wd+'venncloud_template.html'):
     """
-    TODO:Documentation and usage instructions needed
+    This actually creates and writes to file the Venncloud.
+    Required Arguments:
+    `input_locs` are either the list of text files to be used to create the Venncloud or a
+    list of lists of strings (one string per document). If the list-of-lists option is used,
+    the datasets will get default names (Dataset#) unless the `dataset_names` is also populated.
+    `idf` is the inverse document frequency dictionary, created from one of the `create_idf_vector_*` 
+    functions.
+    `output_loc` is the path to where the output .html file should be placed.
+    `from_text_files` flag indicates whether input_locs are locations of text files (`True`) or
+    list-of-lists-of-string (`False`).
+    `max_examples` is the maximum number of examples to be stored and displayed for each token.
+    `dataset_names` should be the same length as `input_locs` and provide strings for each
+    dataset name, to be displayed in the interface.
+    `template_loc` indicates where the template file can be found. It MUST contain an anchor 
+    (see code below) for the JSON objects to be dumped.
     """
     dataset = []
     
     for index,input_loc in enumerate(input_locs):
         if not from_text_files:
-            dataset_name = dataset_names[index]
+            try:
+                dataset_name = dataset_names[index]
+            except IndexError:
+                dataset_name = "Dataset%s" % index
             print "Encoding",dataset_name
         else:
             dataset_name = input_loc.split('/')[-1].split('.')[0]
@@ -293,7 +321,7 @@ def create_dynamic_wordclouds(input_locs, idf, output_loc, from_text_files=True,
             elif token in idf:
                 trimmed_idf[token] = idf[token]
 
-    template_loc = wd+'venncloud_template.html'
+
     parameter_anchor = '[[[PARAMETERS_GO_HERE]]]'
 
     OUT = codecs.open(output_loc,'w','utf8')
