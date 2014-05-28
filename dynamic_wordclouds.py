@@ -359,15 +359,17 @@ if __name__ == '__main__':
         import argparse
     except: # IF you don't have argparse installed (e.g. python 2.6)
         from optparse import OptionParser
-        usage = """ dynamic_wordclouds.py [-h] [--output OUTPUT] [--idf IDF]
-                                     [--examples EXAMPLES] [--window WINDOW]
-                                     N [N ...]
+        usage = """ usage: dynamic_wordclouds.py [-h] [--output OUTPUT] [--idf IDF]
+                             [--examples EXAMPLES] [--window WINDOW]
+                             [--minimum-frequency MINIMUM_FREQUENCY]
+                             N [N ...]
                                                                   """
         parser = OptionParser(usage=usage)
         parser.add_option('--output',dest='output',action='store',help='Where the output html file should be written.',default='generated_wordcloud.html')
-        parser.add_option('--idf',dest='idf',action='store',help='Location of an idf vector to be used, as a JSON file of a python dictionary -- see `create_idf_vector.py` to make one. If this argument is omitted, we will generate the idf vector from the red and blue documents.',default=None)
-        parser.add_option('--examples',dest='examples',action='store',help='Number of examples of each word to store.',default=5)
-        parser.add_option('--window',dest='window',action='store',help='Window size on each side for each example, in number of tokens.',default=5)
+        parser.add_option('--idf',dest='idf',action='store',help='Location of an idf vector to be used, as a JSON file of a python dictionary -- see `create_idf_vector.py` to make one. If this argument is omitted, we will generate the idf vector from the provided documents.',default=None)
+        parser.add_option('--examples',dest='examples',action='store',help='Number of examples of each word to store [defaults to 5].',default=5)
+        parser.add_option('--window',dest='window',action='store',help='Window size on each side for each example, in number of tokens [defaults to 5].',default=5)
+        parser.add_option('--minimum-frequency',dest='min_freq',action='store',help='Minimum occurences of a word included in the Venncloud data [defaults to 3].', default=3)
 
         (options,args) = parser.parse_args()
         input_locs = args
@@ -375,11 +377,12 @@ if __name__ == '__main__':
         idf_loc = options.idf
         num_examples = int(options.examples)
         example_window = int(options.window)
+        minimum_frequency = int(options.min_freq)
 
     else:
         parser = argparse.ArgumentParser(description='Create a Venncloud html file.')
         parser.add_argument('--output',action='store',help='Where the output html file should be written.',default='generated_wordcloud.html')
-        parser.add_argument('--idf',action='store',help='Location of an idf vector to be used, as a JSON file of a python dictionary -- see `create_idf_vector.py` to make one. If this argument is omitted, we will generate the idf vector from the red and blue documents.',default=None)
+        parser.add_argument('--idf',action='store',help='Location of an idf vector to be used, as a JSON file of a python dictionary -- see `create_idf_vector.py` to make one. If this argument is omitted, we will generate the idf vector from the provided documents.',default=None)
         parser.add_argument('--examples',action='store',help='Number of examples of each word to store [defaults to 5].',default=5)
         parser.add_argument('--window',action='store',help='Window size on each side for each example, in number of tokens [defaults to 5].',default=5)
         parser.add_argument('--minimum-frequency',action='store',help='Minimum occurences of a word included in the venncloud data [defaults to 3].',default=3)
