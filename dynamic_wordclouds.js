@@ -769,7 +769,7 @@ function filter_for_display_entities_types(to_filter) {
     ;
 
     //filtered = [];
-    console.log(to_filter);
+    //console.log(to_filter);
     $.each(Object.keys(to_filter), function (index, i) {
         key = to_filter[i]['text'];
         if (key[0] == '@') {
@@ -889,8 +889,6 @@ function prepare_wordcloud_data(selected_datasets) {
     }
     ;
 
-
-    console.log(selected_datasets)
 
     //Store the dataset(s) selected in current_data
     current_data = []; //Of size 1 for dynamic wordcloud, of size 3 for venncloud
@@ -1079,9 +1077,6 @@ function paint_tokens(display, data, color) {
 
 function draw_wordcloud() {
 
-    console.log('hit draw' + selected_datasets);
-    //selected_datasets = [0];//HARDCODE for testing
-    //selected_datasets = [0,1];//HARDCODE for testing
     display_index_in_master_data = selected_datasets;
 
 
@@ -1097,8 +1092,7 @@ function draw_wordcloud() {
     $('#left_dataset_selector').off();
     $('#right_dataset_selector').off();
 
-    // TODO: remove hardcoded id?
-    main_wordcloud_container = $('div#wordcloud_landing_zone');
+    main_wordcloud_container = $('div#'+s.wordcloud_element);
     main_wordcloud_container.children().remove();
 
     var leftAvailableDatasets = '';
@@ -1117,14 +1111,14 @@ function draw_wordcloud() {
     display += "</tr></thead>";
     display += "<tbody class='js-context-area'><tr>";
     if (venncloud) {
-        /*
+	//TODO: Deal with space more effectively -- we should be able to estimate how much room each should get
          display += "<td style='vertical-align:top'><span class='wordcloud-display' id='leftcloud'></span></td>";
          display += "<td style='vertical-align:top'><span class='wordcloud-display' id='commoncloud'></span></td>";
          display += "<td style='vertical-align:top'><span class='wordcloud-display' id='rightcloud'></span></td>";
-         */
-        display += "<td style='vertical-align:top' width='35%'><span class='wordcloud-display' id='leftcloud'></span></td>";
-        display += "<td style='vertical-align:top' width='30%'><span class='wordcloud-display' id='commoncloud'></span></td>";
-        display += "<td style='vertical-align:top' width='35%'><span class='wordcloud-display' id='rightcloud'></span></td>";
+        /*display += "<td style='vertical-align:top' width='33%'><span class='wordcloud-display' id='leftcloud'></span></td>";
+        display += "<td style='vertical-align:top' width='34%'><span class='wordcloud-display' id='commoncloud'></span></td>";
+        display += "<td style='vertical-align:top' width='33%'><span class='wordcloud-display' id='rightcloud'></span></td>";
+	*/
     }
     else if (singlecloud) {
         display += "<td><span class='wordcloud-display' id='commoncloud'></span></td>";
