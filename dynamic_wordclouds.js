@@ -163,8 +163,8 @@ function hide_all_controls() {
     opacity_controls_visible = false;
     $('#wordcloud_size_controls').hide();
     size_controls_visible = false;
-    $('#wordcloud_description_output').hide();
-    wordcloud_description_visible = false;
+    //$('#wordcloud_description_output').hide();
+    //wordcloud_description_visible = false;
 
 }
 function hide_all_windows() {
