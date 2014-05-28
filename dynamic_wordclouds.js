@@ -1,6 +1,5 @@
 /*TODO
- -Add in ability to put values in directly to the menu bars (e.g., tf and idf filters)
- -Fix wordcloud description
+  -- deal with default bootstrap.js handling of clicking on menus so we can click-edit values into the sliders
  */
 
 
@@ -58,8 +57,6 @@ var s = {
     }
 };
 
-
-//TODO: Make sure tf filter is running on combinatino from both lists isntead of individually -- we see some words switch clouds as we change the tf filter reqs
 
 
 /**************/
@@ -360,7 +357,7 @@ function initialize_wordcloud_controls() {
             },
             slide: function (event, ui) {
                 var tmp = $("#required_observations_slider").slider("values");
-                update_required_tf_filter_display(tmp);//TODO: fix for range
+                update_required_tf_filter_display(tmp);
             }
         });
         //update_required_tf_filter_display($("required_observations_slider").slider("values"));
@@ -529,7 +526,7 @@ function initialize_wordcloud_controls() {
             },
             slide: function (event, ui) {
                 var tmp = $("#required_characters_slider").slider("values");
-                update_required_characters_filter_display(tmp);//TODO: fix for range
+                update_required_characters_filter_display(tmp);
             }
         });
         update_required_characters_filter_display([s.min_req_chars, s.max_req_chars]); // Maybe we want to display overall_max_observed instead?
@@ -888,8 +885,7 @@ function prepare_wordcloud_data(selected_datasets) {
         venncloud = true;
     }
     else {
-        //TODO: Need a better error message
-        alert('Only supports up to two corpora, you have selected something other than that.');
+        alert('Oh shucks, something broke.');
     }
     ;
 
@@ -938,9 +934,7 @@ function prepare_wordcloud_data(selected_datasets) {
         }
 
         for (var token in all_tokens) {
-            //$.each(all_tokens, function(token,nonsense){
             //TODO: classifier scores
-            //token = all_tokens[index];
 
             var l_prop = L[token] && L[token]['prop_tokens'] || 0;
             var l_tf = L[token] && L[token]['tf'] || 0;
@@ -1158,6 +1152,12 @@ function draw_wordcloud() {
     // Call update to get actual values correct
     update_wordcloud();
 
+    //Add handlers stored in `s` to the wordcloud display
+    var wordcloud_element = s.wordcloud_element || 'wordcloud_location';
+    main_wordcloud_container = $('#' + wordcloud_element);
+    var context_area = $('#' + wordcloud_element + '>table>tbody');
+    add_handlers(context_area);
+
     // Turn the display on
     main_wordcloud_container.show();
 
@@ -1280,6 +1280,8 @@ function make_me_a_venncloud(datasets, options) {
 
     var wordcloud_element = options.wordcloud_element || 'wordcloud_location';
 
+    s.wordcloud_element = wordcloud_element;
+
     initialize_wordcloud_controls();
 
     master_datasets = compute_master_data(datasets);
@@ -1294,6 +1296,5 @@ function make_me_a_venncloud(datasets, options) {
 
     main_wordcloud_container = $('#' + wordcloud_element);
     var context_area = $('#' + wordcloud_element + '>table>tbody');
-    add_handlers(context_area);
 
 }
