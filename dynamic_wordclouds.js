@@ -49,6 +49,7 @@ var s = {
     display_words: true,
     display_hashtags: true,
     display_user_mentions: true,
+    wordcloud_element: 'wordcloud_location',
     onclick_function: function (token) {
         default_example_onclick(token);
     },
@@ -1272,12 +1273,17 @@ function defaulRightClickHandler(token){
 function make_me_a_venncloud(datasets, options) {
     //Datasets is always an array of token dictionaries
 
-    s.onclick_function = options.click || defaulLeftClickHandler;
-    s.oncontextclick_function = options.contextclick || defaulRightClickHandler;
+    //Merge user-provided options and default settings
+    $.extend(s, options);
 
-    var wordcloud_element = options.wordcloud_element || 'wordcloud_location';
-
-    s.wordcloud_element = wordcloud_element;
+    //For backwards compatibility with older code that calls this function,
+    //allow click handlers to be specified using alternate names
+    if (options.click) {
+        s.onclick_function = options.click;
+    }
+    if (options.contextclick) {
+        s.oncontextclick_function = options.contextclick;
+    }
 
     initialize_wordcloud_controls();
 
@@ -1291,7 +1297,7 @@ function make_me_a_venncloud(datasets, options) {
 
     hide_example_windows();
 
-    main_wordcloud_container = $('#' + wordcloud_element);
-    var context_area = $('#' + wordcloud_element + '>table>tbody');
+    main_wordcloud_container = $('#' + s.wordcloud_element);
+    var context_area = $('#' + s.wordcloud_element + '>table>tbody');
 
 }
