@@ -80,35 +80,39 @@ var highlight_keywords = false;
 /**Example Windows**/
 /*******************/
 
-floatingMenu.add('floatdivright',
-    {
-        // Represents distance from left or right browser window
-        // border depending upon property used. Only one should be
-        // specified.
-        // targetLeft: 0,
-        targetRight: 10,
+if (document.getElementById('floatdivright')) {
+    floatingMenu.add('floatdivright',
+        {
+            // Represents distance from left or right browser window
+            // border depending upon property used. Only one should be
+            // specified.
+            // targetLeft: 0,
+            targetRight: 10,
 
-        // Represents distance from top or bottom browser window
-        // border depending upon property used. Only one should be
-        // specified.
-        //targetTop: 10,
-        targetBottom: 10,
+            // Represents distance from top or bottom browser window
+            // border depending upon property used. Only one should be
+            // specified.
+            //targetTop: 10,
+            targetBottom: 10,
 
-        // Uncomment one of those if you need centering on
-        // X- or Y- axis.
-        // centerX: true,
-        // centerY: true,
+            // Uncomment one of those if you need centering on
+            // X- or Y- axis.
+            // centerX: true,
+            // centerY: true,
 
-        // Remove this one if you don't want snap effect
-        snap: true
-    });
+            // Remove this one if you don't want snap effect
+            snap: true
+        });
+}
 
-floatingMenu.add('floatdivleft',
-    {
-        targetLeft: 10,
-        targetBottom: 10,
-        snap: true
-    });
+if (document.getElementById('floatdivleft')) {
+    floatingMenu.add('floatdivleft',
+        {
+            targetLeft: 10,
+            targetBottom: 10,
+            snap: true
+        });
+}
 
 function hide_example_windows() {
     $('#floatdivright').hide();
@@ -366,7 +370,7 @@ function initialize_wordcloud_controls() {
         // attach click handlers to result display
         $( "#min_required_observations" ).on('click', function(event) { sliderValueInputHandler(event); });
         $( "#max_required_observations" ).on('click', function(event) { sliderValueInputHandler(event); });
-	
+
     });
 
 
@@ -1228,7 +1232,7 @@ function compute_master_data(datasets) {
 
     tmp = [s.min_req_chars, s.max_req_chars];
     $("#required_characters_slider").slider("option", "values", tmp);
-    
+
 
     return datasets;
 }
