@@ -561,25 +561,11 @@ function initialize_wordcloud_controls() {
     $(function () {
         handle = $('#base_fontsize_slider');
         handle.slider();
-        //$( "#base_fontsize_slider" ).slider();
-        /*$( "#base_fontsize_slider" ).slider("option","min",5);
-         $( "#base_fontsize_slider" ).slider("option","max",20);
-         $( "#base_fontsize_slider" ).slider("option","step",1);
-         $( "#base_fontsize_slider" ).slider("option","value",10);
-         */
-
         handle.slider("option", "min", 1);
         handle.slider("option", "max", 100);
         handle.slider("option", "step", 1);
         handle.slider("option", "value", s.base_fontsize);
-
-        /*
-         $( "#base_fontsize_slider" ).slider("option","min",10);
-         $( "#base_fontsize_slider" ).slider("option","max",1000);
-         $( "#base_fontsize_slider" ).slider("option","step",3);
-         $( "#base_fontsize_slider" ).slider("option","value",50);
-         */
-        $("#base_fontsize_slider").slider({
+        handle.slider({
             slide: function (event, ui) {
                 base_fontsize_change(event, ui);
             },
@@ -587,7 +573,6 @@ function initialize_wordcloud_controls() {
                 base_fontsize_change(event, ui);
             }
         });
-
     });
 
     function base_opacity_change(event, ui) {
