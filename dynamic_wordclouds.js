@@ -702,7 +702,8 @@ function filter_for_required_tf(to_filter_dicts) {
 
     //If we're passed [{},{},...] sum the occurences of each token across all objects before applying filter
     var all_tokens = {}; //Keyed on token, value is summed tf
-    for (var index = 0, len = to_filter_dicts.length; index < len; index++) {
+    var index, len;
+    for (index = 0, len = to_filter_dicts.length; index < len; index++) {
         to_filter_dict = to_filter_dicts[index];
         $.each(Object.keys(to_filter_dict), function (index, key) {
             this_tf = to_filter_dict[key].tf;
@@ -718,7 +719,7 @@ function filter_for_required_tf(to_filter_dicts) {
     $.each(Object.keys(all_tokens), function (index, key) {
         combined_tf = all_tokens[key];
         if (combined_tf < s.min_req_tf || combined_tf > s.max_req_tf) {
-            for (var index = 0, len = to_filter_dicts.length; index < len; index++) {
+            for (index = 0, len = to_filter_dicts.length; index < len; index++) {
                 to_filter_dict = to_filter_dicts[index];
                 //if (key in to_filter_dict){
                 if (key in to_filter_dict && key != 'orioles') {
@@ -797,12 +798,16 @@ function sorter(to_sort, my_sort_type) {
     to_sort.sort(function (a, b) {
         return b.text < a.text;
     }); // The default is alphabetic
-    my_sort_type === 'IDF' ? to_sort.sort(function (a, b) {
-        return b.idf - a.idf;
-    }) : null; // Reverse, so rarer words are on top
-    my_sort_type === 'COUNT' ? to_sort.sort(function (a, b) {
-        return b.tf - a.tf;
-    }) : null;
+    if (my_sort_type === 'IDF') {
+        to_sort.sort(function (a, b) {
+            return b.idf - a.idf;
+        });
+    } // Reverse, so rarer words are on top
+    if (my_sort_type === 'COUNT') {
+        to_sort.sort(function (a, b) {
+            return b.tf - a.tf;
+        });
+    }
     return to_sort;
 }
 
@@ -948,8 +953,12 @@ function prepare_wordcloud_data(selected_datasets) {
                 common_list.push(common_token);
             }
             else {
-                r_prop < l_prop ? left_list.push(L[token]) :
+                if (r_prop < l_prop) {
+                    left_list.push(L[token]);
+                }
+                else {
                     right_list.push(R[token]);
+                }
             }
 
         }
@@ -1175,10 +1184,15 @@ function compute_master_data(datasets) {
             tok_rep[token] = tokens[i];
 
             //update max and mins observed if needed
-            (tf > overall_max_observed) ? overall_max_observed = tf : null; //This is slightly different from the last iteration
-            (idf < overall_min_idf_observed) ? overall_min_idf_observed = idf : null;
-            (token.length > overall_max_word_length_observed) ? overall_max_word_length_observed = token.length: null;
-
+            if (tf > overall_max_observed) {
+                overall_max_observed = tf;
+            } //This is slightly different from the last iteration
+            if (idf < overall_min_idf_observed) {
+                overall_min_idf_observed = idf;
+            }
+            if (token.length > overall_max_word_length_observed) {
+                overall_max_word_length_observed = token.length;
+            }
         }
         //Convert all master data arrays to dictionaries keyed on tokens
         datasets[j].tokens = tok_rep;
