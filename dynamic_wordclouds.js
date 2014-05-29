@@ -1263,13 +1263,6 @@ function dataset_selected() {
 	draw_wordcloud();
 }
 
-function defaulLeftClickHandler(token){
-    default_example_onclick(token);
-}
-function defaulRightClickHandler(token){
-
-}
-
 function make_me_a_venncloud(datasets, options) {
     //Datasets is always an array of token dictionaries
 
