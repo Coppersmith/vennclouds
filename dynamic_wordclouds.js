@@ -831,9 +831,12 @@ function preference_sorter(to_sort) {
 
 //Size and Opacity calculations
 get_size = function (count, idf) {
-    weighted_by_count = count * (10 / overall_max_observed); //HARDCODE??
-    weighted_by_rarity_size = 1 / Math.log(1 / idf);
-    weighted_size = s.base_fontsize; // A base size
+    var weighted_by_count = count * (10 / overall_max_observed); //HARDCODE??
+    // When IDF=1, weighted_by_rarity_size=Infinity, which causes weighted_size
+    // to be set to Infinity - which makes all fonts have the same (maximum) size
+    //var weighted_by_rarity_size = 1 / Math.log(1 / idf); //HARDCODE turned off
+    var weighted_by_rarity_size = 1;
+    var weighted_size = s.base_fontsize; // A base size
     //console.log(weighted_size, weighted_by_rarity_size, weighted_by_count, count, idf);
     weighted_size *= (1 - s.size_frequency_weight) + s.size_frequency_weight * weighted_by_count;
     weighted_size *= (1 - s.size_rarity_weight) + (s.size_rarity_weight * weighted_by_rarity_size);
