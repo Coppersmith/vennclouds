@@ -1063,6 +1063,12 @@ function paint_tokens(display, data, color) {
         token_element.style.fontSize = '2pt';
         token_element.style.color = color;
 
+        if (t.span_classes) {
+          for (var i in t.span_classes) {
+            token_element.classList.add(t.span_classes[i]);
+          }
+        }
+
         t['handle'] = token_element;
 
         //Actually add to the display
