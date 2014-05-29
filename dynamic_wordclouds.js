@@ -51,7 +51,7 @@ var s = {
     display_hashtags: true,
     display_user_mentions: true,
     onclick_function: function (token) {
-        default_example_onclick(token)
+        default_example_onclick(token);
     },
     oncontextclick_function: function (token) {
     }
@@ -189,7 +189,7 @@ function initialize_wordcloud_controls() {
         //DEBUG//document.getElementById('common_cloud_controls_out').innerHTML = value + " " + orig_value;
         s.center_threshold = value;
         draw_wordcloud();
-    };
+    }
 
     $(function () {
         $("#common_cloud_controls").slider({
@@ -198,12 +198,12 @@ function initialize_wordcloud_controls() {
             "step": s.center_step,
             "value": s.center_threshold,
             slide: function (event, ui) {
-                common_cloud_change(event, ui)
+                common_cloud_change(event, ui);
             },
             change: function (event, ui) {
-                common_cloud_change(event, ui)
+                common_cloud_change(event, ui);
             }
-        })
+        });
     });
 
 
@@ -266,10 +266,10 @@ function initialize_wordcloud_controls() {
             "step": 0.01,
             "value": s.size_frequency_weight,
             slide: function (event, ui) {
-                size_frequency_change(event, ui)
+                size_frequency_change(event, ui);
             },
             change: function (event, ui) {
-                size_frequency_change(event, ui)
+                size_frequency_change(event, ui);
             }
         });
     });
@@ -556,7 +556,8 @@ function initialize_wordcloud_controls() {
         //DEBUG//document.getElementById('base_fontsize_slider_out').innerHTML = value + " " + orig_value;
         s.base_fontsize = value;
         update_wordcloud();
-    };
+    }
+
     $(function () {
         handle = $('#base_fontside_slider');
         handle.slider();
@@ -592,7 +593,7 @@ function initialize_wordcloud_controls() {
     function base_opacity_change(event, ui) {
         var sli = $("#base_opacity_slider");
         //var orig_value = $( "#base_opacity_slider" ).slider( "values", num_words_max );
-        var orig_value = sli.slider("values", .5);
+        var orig_value = sli.slider("values", 0.5);
         value = orig_value;
         //DEBUG//document.getElementById('base_opacity_slider_out').innerHTML = value + " " + orig_value;
         //base_opacity = opacity_slider_max_value - value;
@@ -604,7 +605,7 @@ function initialize_wordcloud_controls() {
             "min": 0,
             "value": s.base_opacity,
             "max": s.opacity_slider_max_value,
-            "step": .01,
+            "step": 0.01,
             slide: function (event, ui) {
                 base_opacity_change(event, ui);
             },
@@ -623,7 +624,7 @@ function initialize_wordcloud_controls() {
 //What year is this that sum() is not defined by default!? --GAC
 function sum(l) {
     return l.reduce(function (a, b) {
-        return a + b
+        return a + b;
     });
 }
 /*
@@ -664,7 +665,7 @@ function clone(original, decoratorFunction) {
 
 //Passthrough for the moment, can adapt if the data is not in the expected form (e.g. arbreviz?)
 proc_query_data = function (query) {
-    return query
+    return query;
 };
 
 
@@ -675,7 +676,7 @@ function filter_for_idf(to_filter_dict) {
             delete to_filter_dict[key];
         }
     });
-};
+}
 
 
 function filter_for_characters(to_filter_dict) {
@@ -685,7 +686,7 @@ function filter_for_characters(to_filter_dict) {
             delete to_filter_dict[key];
         }
     });
-};
+}
 
 //TODO: Make a function to take an arbitrary number of dicts to filter, and filter on the sum of their tfs
 
@@ -707,13 +708,13 @@ function filter_for_required_tf(to_filter_dicts) {
         });
         return;
     }
-    ;
+
     //If we're passed [{},{},...] sum the occurences of each token across all objects before applying filter
     var all_tokens = {}; //Keyed on token, value is summed tf
     for (var index = 0, len = to_filter_dicts.length; index < len; index++) {
         to_filter_dict = to_filter_dicts[index];
         $.each(Object.keys(to_filter_dict), function (index, key) {
-            this_tf = to_filter_dict[key]['tf']
+            this_tf = to_filter_dict[key]['tf'];
             if (key in all_tokens) {
                 all_tokens[key] += this_tf;
             }
@@ -733,9 +734,7 @@ function filter_for_required_tf(to_filter_dicts) {
                     delete to_filter_dict[key];
                 }
             }
-            ;
         }
-        ;
     });
 }
 
@@ -748,7 +747,7 @@ function filter_for_required_observations_and_idf(to_filter_dict) {
             delete to_filter_dict[key];
         }
     });
-};
+}
 
 //This function might not actually be needed, given how we constructed compute master data
 function filter_multiple_for_required_tf_and_idf(to_filter_dicts) {
@@ -756,10 +755,10 @@ function filter_multiple_for_required_tf_and_idf(to_filter_dicts) {
     for (var index = 0, len = to_filter_dicts.length; index < len; index++) {
         filter_for_idf(to_filter_dicts[index]);
     }
-    ;
+
     //Filter them jointly for tf
     filter_for_required_tf(to_filter_dicts);
-};
+}
 
 //TODO: Add displays necessary to make this function
 function filter_for_display_entities_types(to_filter) {
@@ -770,7 +769,6 @@ function filter_for_display_entities_types(to_filter) {
     if (s.display_words && s.display_user_mentions && s.display_hashtags) {
         return to_filter; //All types selected, this is just a passthrough
     }
-    ;
 
     //filtered = [];
     //console.log(to_filter);
@@ -791,33 +789,32 @@ function filter_for_display_entities_types(to_filter) {
                 delete to_filter[i];
             }
         }
-        ;
     });
     //return filtered;
     return to_filter;
-};
+}
 
 
 //Sorting
 function sorter(to_sort, my_sort_type) {
     to_sort.sort(function (a, b) {
-        return b['text'] < a['text']
+        return b['text'] < a['text'];
     }); // The default is alphabetic
     my_sort_type === 'IDF' ? to_sort.sort(function (a, b) {
-        return b['idf'] - a['idf']
+        return b['idf'] - a['idf'];
     }) : null; // Reverse, so rarer words are on top
     my_sort_type === 'COUNT' ? to_sort.sort(function (a, b) {
-        return b['tf'] - a['tf']
+        return b['tf'] - a['tf'];
     }) : null;
     return to_sort;
-};
+}
 
 function preference_sorter(to_sort) {
     //Sort by what the user has specified
     s.sort_type = $("#radio :radio:checked").attr('id');
     sorted = sorter(to_sort, s.sort_type);
     return sorted;
-};
+}
 
 
 //Size and Opacity calculations
@@ -830,14 +827,14 @@ get_size = function (count, idf) {
     weighted_size *= (1 - s.size_rarity_weight) + (s.size_rarity_weight * weighted_by_rarity_size);
     //DEBUG.innerHTML = "~!" + (1-rarity_weight) * unweighted_by_rarity_size + "~~" + rarity_weight * idf + "!@!" + max_observed_count;
     if (weighted_size < 10) {
-        return 10
+        return 10;
     }
-    ;
+
     if (weighted_size > 60) {
-        return 60
+        return 60;
     }
-    ;
-    return(weighted_size)
+
+    return(weighted_size);
 };
 
 
@@ -850,12 +847,12 @@ get_opacity = function (count, idf) {
     if (weighted_opacity < 0.1) {
         weighted_opacity = 0.1;
     }
-    ;
+
     if (weighted_opacity > 1) {
         weighted_opacity = 1;
     }
-    ;
-    return(weighted_opacity)
+
+    return(weighted_opacity);
 };
 
 
@@ -870,9 +867,9 @@ function update_wordcloud() {
             token_element.style.opacity = get_opacity(token['tf'], token['idf']);
         });
     }
-    ;
+
     add_description_to_display();
-};
+}
 
 
 function prepare_wordcloud_data(selected_datasets) {
@@ -891,7 +888,6 @@ function prepare_wordcloud_data(selected_datasets) {
     else {
         alert('Oh shucks, something broke.');
     }
-    ;
 
 
     //Store the dataset(s) selected in current_data
@@ -903,11 +899,10 @@ function prepare_wordcloud_data(selected_datasets) {
         dat = filter_for_display_entities_types(dat);
         filter_for_idf(dat);
 
-	filter_for_characters(dat)
+        filter_for_characters(dat);
 
         current_data.push(dat);
     }
-    ;
 
     filter_for_required_tf(current_data);
 
@@ -956,18 +951,12 @@ function prepare_wordcloud_data(selected_datasets) {
                 r_prop < l_prop ? left_list.push(L[token]) :
                     right_list.push(R[token]);
             }
-            ;
+
         }
-        ;
-
-
     }
-    ;
-
 
     //Sort
     $.map(current_display_data, preference_sorter);
-
 
     /*
 
@@ -982,20 +971,20 @@ function prepare_wordcloud_data(selected_datasets) {
      };
      */
 
-};
+}
 
 
 function tf_size_weight_str() {
-    return "TF:" + Math.round(s.size_frequency_weight * 100) / 100
+    return "TF:" + Math.round(s.size_frequency_weight * 100) / 100;
 }
 function idf_size_weight_str() {
-    return "IDF:" + Math.round(s.size_rarity_weight * 100) / 100
+    return "IDF:" + Math.round(s.size_rarity_weight * 100) / 100;
 }
 function tf_opacity_weight_str() {
-    return "TF:" + Math.round(s.opacity_frequency_weight * 100) / 100
+    return "TF:" + Math.round(s.opacity_frequency_weight * 100) / 100;
 }
 function idf_opacity_weight_str() {
-    return "IDF:" + Math.round(s.opacity_rarity_weight * 100) / 100
+    return "IDF:" + Math.round(s.opacity_rarity_weight * 100) / 100;
 }
 
 function add_description_to_display() {
@@ -1007,55 +996,46 @@ function add_description_to_display() {
         if (s.size_rarity_weight > 0) {
             d += "Larger words frequently occur in the query and rarely occur in the corpus (TF*IDF). ";
             d += "[" + tf_size_weight_str() + "," + idf_size_weight_str() + "]";
-            d += "<BR>"
+            d += "<BR>";
         }
         else {
             d += "Larger words are more frquent in the query (TF). [" + tf_size_weight_str() + "]<BR>";
         }
-        ;
     }
     else {
         if (s.size_rarity_weight > 0) {
             d += "Larger words are rarer in the whole corpus (IDF). [" + idf_size_weight_str() + "<BR>";
         }
-        ;
     }
-    ;
 
     if (s.opacity_frequency_weight > 0) {
         if (s.opacity_rarity_weight < 1) {
-            d += "Darker words frequently occur in the query and rarely occur in the corpus (TF*IDF). "
+            d += "Darker words frequently occur in the query and rarely occur in the corpus (TF*IDF). ";
             d += "[" + tf_opacity_weight_str() + "," + idf_opacity_weight_str() + "]";
             d += "<BR>";
         }
         else {
             d += "Darker words are more frequent in the query (TF). [" + tf_opacity_weight_str() + "]<BR>";
         }
-        ;
     }
     else {
         if (s.opacity_rarity_weight < 1) {
             d += "Darker words are rarer in the whole corpus (IDF). [" + idf_opacity_weight_str() + "]<BR>";
         }
-        ;
     }
-    ;
 
     if (s.sort_type == "ALPHABETIC") {
         d += "Words are sorted alphabetically.<BR>";
     }
-    ;
     if (s.sort_type == "IDF") {
         d += "Words are sorted by those that occur in the fewest document to those that occur in the most, in the whole corpus (IDF).<BR>";
     }
-    ;
     if (s.sort_type == "COUNT") {
         d += "Words are sorted by many to few occurences in the query (TF).<BR>";
     }
-    ;
 
     $('#wordcloud_description_output').html(d);
-};
+}
 
 
 function paint_tokens(display, data, color) {
@@ -1076,7 +1056,7 @@ function paint_tokens(display, data, color) {
         //Actually add to the display
         display.append(token_element);
     });
-};
+}
 
 
 function draw_wordcloud() {
@@ -1144,8 +1124,6 @@ function draw_wordcloud() {
         paint_tokens($('span#commoncloud'), current_display_data[1], 'black');
         paint_tokens($('span#rightcloud'), current_display_data[2], 'red');
     }
-    ;
-
 
     // Call update to get actual values correct
     update_wordcloud();
@@ -1189,7 +1167,7 @@ function compute_master_data(datasets) {
             //update max and mins observed if needed
             (tf > overall_max_observed) ? overall_max_observed = tf : null; //This is slightly different from the last iteration
             (idf < overall_min_idf_observed) ? overall_min_idf_observed = idf : null;
-	    (token.length > overall_max_word_length_observed) ? overall_max_word_length_observed = token.length: null;
+            (token.length > overall_max_word_length_observed) ? overall_max_word_length_observed = token.length: null;
 
         }
         //Convert all master data arrays to dictionaries keyed on tokens
@@ -1240,7 +1218,7 @@ function add_handlers(zone) {
     //console.log("Z:",zone);
     zone.on("click", function (e) {
         e = e || Event;
-        s.onclick_function(e.target.innerHTML.trim())
+        s.onclick_function(e.target.innerHTML.trim());
     });
     zone.on("contextmenu", function (e) {
         e = e || Event;
