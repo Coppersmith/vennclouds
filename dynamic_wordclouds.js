@@ -135,7 +135,7 @@ function default_example_onclick(token) {
         var r_tokens = master_datasets[display_index_in_master_data[1]].tokens;
         var r_str_exs = 'N/A';
         if (token in r_tokens) {
-            r_str_exs = r_tokens[token]['examples'].join('<BR><HR>');
+            r_str_exs = r_tokens[token].examples.join('<BR><HR>');
         }
         $('#examples_right').html(r_str_exs);
     }
@@ -143,7 +143,7 @@ function default_example_onclick(token) {
     var l_tokens = master_datasets[display_index_in_master_data[0]].tokens;
     var l_str_exs = 'N/A';
     if (token in l_tokens) {
-        l_str_exs = l_tokens[token]['examples'].join('<BR><HR>');
+        l_str_exs = l_tokens[token].examples.join('<BR><HR>');
     }
     $('#examples_left').html(l_str_exs);
 
@@ -661,7 +661,7 @@ function filter_for_idf(to_filter_dict) {
     // does not exist.
     if (document.getElementById('required_idf_slider')) {
         $.each(Object.keys(to_filter_dict), function (index, key) {
-            this_idf = to_filter_dict[key]['idf'];
+            this_idf = to_filter_dict[key].idf;
             if (this_idf < s.min_req_idf || this_idf > s.max_req_idf) {
                 delete to_filter_dict[key];
             }
@@ -691,7 +691,7 @@ function filter_for_required_tf(to_filter_dicts) {
             to_filter_dict = to_filter_dicts; // passed {}
         }
         $.each(Object.keys(to_filter_dict), function (index, key) {
-            this_tf = to_filter_dict[key]['tf'];
+            this_tf = to_filter_dict[key].tf;
             //if (this_tf < s.min_req_tf || this_tf > s.max_req_tf )  {
             if (key != 'orioles' && (this_tf < s.min_req_tf || this_tf > s.max_req_tf )) {///HARDCODE WHY!?
                 delete to_filter_dict[key];
@@ -705,7 +705,7 @@ function filter_for_required_tf(to_filter_dicts) {
     for (var index = 0, len = to_filter_dicts.length; index < len; index++) {
         to_filter_dict = to_filter_dicts[index];
         $.each(Object.keys(to_filter_dict), function (index, key) {
-            this_tf = to_filter_dict[key]['tf'];
+            this_tf = to_filter_dict[key].tf;
             if (key in all_tokens) {
                 all_tokens[key] += this_tf;
             }
@@ -733,7 +733,7 @@ function filter_for_required_observations_and_idf(to_filter_dict) {
     //TODO: classifier score
     filter_for_idf(to_filter_dict);
     $.each(Object.keys(to_filter_dict), function (index, key) {
-        this_tf = to_filter_dict[key]['tf'];
+        this_tf = to_filter_dict[key].tf;
         if (this_tf < s.min_req_tf || this_tf > s.max_req_tf) {
             delete to_filter_dict[key];
         }
@@ -770,7 +770,7 @@ function filter_for_display_entities_types(to_filter) {
     //filtered = [];
     //console.log(to_filter);
     $.each(Object.keys(to_filter), function (index, i) {
-        key = to_filter[i]['text'];
+        key = to_filter[i].text;
         if (key[0] == '@') {
             if (!s.display_user_mentions) {
                 delete to_filter[i];
@@ -795,13 +795,13 @@ function filter_for_display_entities_types(to_filter) {
 //Sorting
 function sorter(to_sort, my_sort_type) {
     to_sort.sort(function (a, b) {
-        return b['text'] < a['text'];
+        return b.text < a.text;
     }); // The default is alphabetic
     my_sort_type === 'IDF' ? to_sort.sort(function (a, b) {
-        return b['idf'] - a['idf'];
+        return b.idf - a.idf;
     }) : null; // Reverse, so rarer words are on top
     my_sort_type === 'COUNT' ? to_sort.sort(function (a, b) {
-        return b['tf'] - a['tf'];
+        return b.tf - a.tf;
     }) : null;
     return to_sort;
 }
@@ -862,9 +862,9 @@ function update_wordcloud() {
     for (var cloud_index = 0, numclouds = current_display_data.length; cloud_index < numclouds; cloud_index++) {
         $.each(Object.keys(current_display_data[cloud_index]), function (index) {
             token = current_display_data[cloud_index][index];
-            var token_element = token['handle'];
-            token_element.style.fontSize = get_size(token['tf'], token['idf']) + 'pt';
-            token_element.style.opacity = get_opacity(token['tf'], token['idf']);
+            var token_element = token.handle;
+            token_element.style.fontSize = get_size(token.tf, token.idf) + 'pt';
+            token_element.style.opacity = get_opacity(token.tf, token.idf);
         });
     }
 
@@ -893,7 +893,7 @@ function prepare_wordcloud_data(selected_datasets) {
     //Store the dataset(s) selected in current_data
     current_data = []; //Of size 1 for dynamic wordcloud, of size 3 for venncloud
     for (var j = 0, lenj = selected_datasets.length; j < lenj; j++) {
-        var dat = clone(master_datasets[selected_datasets[j]]['tokens']);
+        var dat = clone(master_datasets[selected_datasets[j]].tokens);
 
         //Filter for idf,tf,entity types
         dat = filter_for_display_entities_types(dat);
@@ -933,17 +933,17 @@ function prepare_wordcloud_data(selected_datasets) {
         for (var token in all_tokens) {
             //TODO: classifier scores
 
-            var l_prop = L[token] && L[token]['prop_tokens'] || 0;
-            var l_tf = L[token] && L[token]['tf'] || 0;
-            var r_prop = R[token] && R[token]['prop_tokens'] || 0;
-            var r_tf = R[token] && R[token]['tf'] || 0;
+            var l_prop = L[token] && L[token].prop_tokens || 0;
+            var l_tf = L[token] && L[token].tf || 0;
+            var r_prop = R[token] && R[token].prop_tokens || 0;
+            var r_tf = R[token] && R[token].tf || 0;
 
             if (r_tf > 0 && l_tf > 0 &&
                 Math.abs((l_prop - r_prop) / (l_prop + r_prop)) <= s.center_threshold) {
                 common_token = {};
-                common_token['text'] = token;
-                common_token['tf'] = (l_tf + r_tf); // Shoudl we average instead of add?
-                common_token['idf'] = L[token]['idf'];
+                common_token.text = token;
+                common_token.tf = (l_tf + r_tf); // Shoudl we average instead of add?
+                common_token.idf = L[token].idf;
                 //Add classifier scores?
                 common_list.push(common_token);
             }
@@ -1046,7 +1046,7 @@ function paint_tokens(display, data, color) {
         attr.nodeValue = element_id;
         token_element.setAttributeNode(attr);
 
-        token_element.textContent = ' ' + t['text'] + ' ';
+        token_element.textContent = ' ' + t.text + ' ';
 
         token_element.style.fontSize = '2pt';
         token_element.style.color = color;
@@ -1057,7 +1057,7 @@ function paint_tokens(display, data, color) {
           }
         }
 
-        t['handle'] = token_element;
+        t.handle = token_element;
 
         //Actually add to the display
         display.append(token_element);
@@ -1157,16 +1157,16 @@ function compute_master_data(datasets) {
     //Add fields to each dataset
     for (var j = 0, lenj = datasets.length; j < lenj; j += 1) {
         var dataset = datasets[j];
-        var tokens = dataset['tokens'];
-        var num_tokens = dataset['num_tokens'];
-        var num_documents = dataset['num_documents'];
+        var tokens = dataset.tokens;
+        var num_tokens = dataset.num_tokens;
+        var num_documents = dataset.num_documents;
         var tok_rep = {}; //indexed version of the 'tokens' field
         for (var i = 0, len = tokens.length; i < len; i += 1) {
-            var tf = tokens[i]['tf'];
-            var idf = tokens[i]['idf'];
+            var tf = tokens[i].tf;
+            var idf = tokens[i].idf;
             counts.push(tf);
             idfs.push(idf);
-            token = tokens[i]['text'];
+            token = tokens[i].text;
             tokens[i].opacity = 1;
             tokens[i].size = 9;
             tokens[i].handle = undefined; //This will be the jquery visual element handle for easy updates
@@ -1181,7 +1181,7 @@ function compute_master_data(datasets) {
 
         }
         //Convert all master data arrays to dictionaries keyed on tokens
-        datasets[j]['tokens'] = tok_rep;
+        datasets[j].tokens = tok_rep;
 
     }
     //Put anything here we can precompute on load for all datasets, independent of view.
