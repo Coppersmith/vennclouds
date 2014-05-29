@@ -1273,8 +1273,6 @@ function defaulRightClickHandler(token){
 function make_me_a_venncloud(datasets, options) {
     //Datasets is always an array of token dictionaries
 
-    var min_observations_required = options.min_observations_required || 2;
-    //var onclick_function=function(token){} || options.click;
     s.onclick_function = options.click || defaulLeftClickHandler;
     s.oncontextclick_function = options.contextclick || defaulRightClickHandler;
 
@@ -1289,7 +1287,7 @@ function make_me_a_venncloud(datasets, options) {
     var initialSelection = [];
     if (master_datasets.length > 0) initialSelection.push(0);
     if (master_datasets.length > 1) initialSelection.push(1);
-	selected_datasets = initialSelection;
+    selected_datasets = initialSelection;
     draw_wordcloud();
 
     hide_example_windows();
