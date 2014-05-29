@@ -670,12 +670,18 @@ proc_query_data = function (query) {
 
 
 function filter_for_idf(to_filter_dict) {
-    $.each(Object.keys(to_filter_dict), function (index, key) {
-        this_idf = to_filter_dict[key]['idf'];
-        if (this_idf < s.min_req_idf || this_idf > s.max_req_idf) {
-            delete to_filter_dict[key];
-        }
-    });
+    // If 'required_idf_slider' does not exist, then s.min_req_idf and s.max_req_idf
+    // will not be set properly by the callback functions attached to the slider.
+    // Without this guard condition, all words are filtered out when 'required_idf_slider'
+    // does not exist.
+    if (document.getElementById('required_idf_slider')) {
+        $.each(Object.keys(to_filter_dict), function (index, key) {
+            this_idf = to_filter_dict[key]['idf'];
+            if (this_idf < s.min_req_idf || this_idf > s.max_req_idf) {
+                delete to_filter_dict[key];
+            }
+        });
+    }
 }
 
 
@@ -762,7 +768,13 @@ function filter_multiple_for_required_tf_and_idf(to_filter_dicts) {
 
 //TODO: Add displays necessary to make this function
 function filter_for_display_entities_types(to_filter) {
-    s.display_words = $('#display_plain_words').is(':checked');
+    if (document.getElementById('display_plain_words')) {
+        s.display_words = $('#display_plain_words').is(':checked');
+    }
+    else {
+        // Wordcloud should be displayed even if DOM is missing 'display_plain_words' checkbox
+        s.display_words = true;
+    }
     s.display_hashtags = $('#display_hashtags').is(':checked');
     s.display_user_mentions = $('#display_user_mentions').is(':checked');
 
