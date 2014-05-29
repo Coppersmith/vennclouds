@@ -24,8 +24,7 @@ var overall_max_observed = 0;
 var overall_min_idf_observed = 1;
 var overall_max_word_length_observed=1;
 
-//store the last computed settings and the settings we are about to compute as top level objects
-var last_computed_settings = {};
+//Store settings as top level object
 var s = {
     center_threshold: 0.1,
     center_threshold_min: 0,
