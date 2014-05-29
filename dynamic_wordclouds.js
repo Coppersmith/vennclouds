@@ -12,7 +12,7 @@ var dataset_selection_list = [];
 //jquery element that we will paint to -- parent pane
 var main_wordcloud_container;
 
-var selected_datasets = false;
+var selected_datasets = [];
 
 
 //Convenience variable for better intuitive reading of the code to indicate what kind of viz we are making
@@ -1078,6 +1078,10 @@ function paint_tokens(display, data, color) {
 
 
 function draw_wordcloud() {
+    //Prevent from running if we don't have datasets selected
+    if  (selected_datasets.length === 0){
+        return;
+    }
 
     display_index_in_master_data = selected_datasets;
 
