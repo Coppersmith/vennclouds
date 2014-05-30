@@ -27,7 +27,7 @@ var venncloud = Object.create(Venncloud);
 Initialize it with a container element and datasets (plus some options):
 
 ```javascript
-venncloud.init({container: '#wordcloud_location, datasets: my_datasets});
+venncloud.init({container: '#wordcloud_location', datasets: my_datasets});
 ```
 
 Subscribe to some events:
@@ -35,6 +35,7 @@ Subscribe to some events:
 ```javascript
 venncloud.on('token-removed', function() { do_something(); });
 ```
+
 
 Tokens
 ======
@@ -55,7 +56,7 @@ Options
   * `base_fontsize` - 30 by default.
   * ...
 
-  
+
 Methods
 =======
 
