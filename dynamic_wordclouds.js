@@ -80,7 +80,7 @@ var highlight_keywords = false;
 /**Example Windows**/
 /*******************/
 
-if (document.getElementById('floatdivright')) {
+//if (document.getElementById('floatdivright')) {
     floatingMenu.add('floatdivright',
         {
             // Represents distance from left or right browser window
@@ -103,16 +103,16 @@ if (document.getElementById('floatdivright')) {
             // Remove this one if you don't want snap effect
             snap: true
         });
-}
+//}
 
-if (document.getElementById('floatdivleft')) {
+//if (document.getElementById('floatdivleft')) {
     floatingMenu.add('floatdivleft',
         {
             targetLeft: 10,
             targetBottom: 10,
             snap: true
         });
-}
+//}
 
 function hide_example_windows() {
     $('#floatdivright').hide();
@@ -1268,6 +1268,8 @@ function compute_master_data(datasets) {
 
     return datasets;
 }
+
+
 function add_handlers(zone) {
     //console.log("Z:",zone);
     zone.on("click", function (e) {
