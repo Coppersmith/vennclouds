@@ -12,7 +12,7 @@ var dataset_selection_list = [];
 //jquery element that we will paint to -- parent pane
 var main_wordcloud_container;
 
-var selected_datasets = false;
+var selected_datasets = [];
 
 
 //Convenience variable for better intuitive reading of the code to indicate what kind of viz we are making
@@ -24,8 +24,7 @@ var overall_max_observed = 0;
 var overall_min_idf_observed = 1;
 var overall_max_word_length_observed=1;
 
-//store the last computed settings and the settings we are about to compute as top level objects
-var last_computed_settings = {};
+//Store settings as top level object
 var s = {
     center_threshold: 0.1,
     center_threshold_min: 0,
@@ -50,8 +49,9 @@ var s = {
     display_words: true,
     display_hashtags: true,
     display_user_mentions: true,
+    wordcloud_element: 'wordcloud_location',
     onclick_function: function (token) {
-        default_example_onclick(token)
+        default_example_onclick(token);
     },
     oncontextclick_function: function (token) {
     }
@@ -80,35 +80,39 @@ var highlight_keywords = false;
 /**Example Windows**/
 /*******************/
 
-floatingMenu.add('floatdivright',
-    {
-        // Represents distance from left or right browser window
-        // border depending upon property used. Only one should be
-        // specified.
-        // targetLeft: 0,
-        targetRight: 10,
+if (document.getElementById('floatdivright')) {
+    floatingMenu.add('floatdivright',
+        {
+            // Represents distance from left or right browser window
+            // border depending upon property used. Only one should be
+            // specified.
+            // targetLeft: 0,
+            targetRight: 10,
 
-        // Represents distance from top or bottom browser window
-        // border depending upon property used. Only one should be
-        // specified.
-        //targetTop: 10,
-        targetBottom: 10,
+            // Represents distance from top or bottom browser window
+            // border depending upon property used. Only one should be
+            // specified.
+            //targetTop: 10,
+            targetBottom: 10,
 
-        // Uncomment one of those if you need centering on
-        // X- or Y- axis.
-        // centerX: true,
-        // centerY: true,
+            // Uncomment one of those if you need centering on
+            // X- or Y- axis.
+            // centerX: true,
+            // centerY: true,
 
-        // Remove this one if you don't want snap effect
-        snap: true
-    });
+            // Remove this one if you don't want snap effect
+            snap: true
+        });
+}
 
-floatingMenu.add('floatdivleft',
-    {
-        targetLeft: 10,
-        targetBottom: 10,
-        snap: true
-    });
+if (document.getElementById('floatdivleft')) {
+    floatingMenu.add('floatdivleft',
+        {
+            targetLeft: 10,
+            targetBottom: 10,
+            snap: true
+        });
+}
 
 function hide_example_windows() {
     $('#floatdivright').hide();
@@ -131,7 +135,7 @@ function default_example_onclick(token) {
         var r_tokens = master_datasets[display_index_in_master_data[1]].tokens;
         var r_str_exs = 'N/A';
         if (token in r_tokens) {
-            r_str_exs = r_tokens[token]['examples'].join('<BR><HR>');
+            r_str_exs = r_tokens[token].examples.join('<BR><HR>');
         }
         $('#examples_right').html(r_str_exs);
     }
@@ -139,7 +143,7 @@ function default_example_onclick(token) {
     var l_tokens = master_datasets[display_index_in_master_data[0]].tokens;
     var l_str_exs = 'N/A';
     if (token in l_tokens) {
-        l_str_exs = l_tokens[token]['examples'].join('<BR><HR>');
+        l_str_exs = l_tokens[token].examples.join('<BR><HR>');
     }
     $('#examples_left').html(l_str_exs);
 
@@ -185,7 +189,7 @@ function initialize_wordcloud_controls() {
         //DEBUG//document.getElementById('common_cloud_controls_out').innerHTML = value + " " + orig_value;
         s.center_threshold = value;
         draw_wordcloud();
-    };
+    }
 
     $(function () {
         $("#common_cloud_controls").slider({
@@ -194,12 +198,12 @@ function initialize_wordcloud_controls() {
             "step": s.center_step,
             "value": s.center_threshold,
             slide: function (event, ui) {
-                common_cloud_change(event, ui)
+                common_cloud_change(event, ui);
             },
             change: function (event, ui) {
-                common_cloud_change(event, ui)
+                common_cloud_change(event, ui);
             }
-        })
+        });
     });
 
 
@@ -262,10 +266,10 @@ function initialize_wordcloud_controls() {
             "step": 0.01,
             "value": s.size_frequency_weight,
             slide: function (event, ui) {
-                size_frequency_change(event, ui)
+                size_frequency_change(event, ui);
             },
             change: function (event, ui) {
-                size_frequency_change(event, ui)
+                size_frequency_change(event, ui);
             }
         });
     });
@@ -366,7 +370,7 @@ function initialize_wordcloud_controls() {
         // attach click handlers to result display
         $( "#min_required_observations" ).on('click', function(event) { sliderValueInputHandler(event); });
         $( "#max_required_observations" ).on('click', function(event) { sliderValueInputHandler(event); });
-	
+
     });
 
 
@@ -552,29 +556,16 @@ function initialize_wordcloud_controls() {
         //DEBUG//document.getElementById('base_fontsize_slider_out').innerHTML = value + " " + orig_value;
         s.base_fontsize = value;
         update_wordcloud();
-    };
-    $(function () {
-        handle = $('#base_fontside_slider');
-        handle.slider();
-        //$( "#base_fontsize_slider" ).slider();
-        /*$( "#base_fontsize_slider" ).slider("option","min",5);
-         $( "#base_fontsize_slider" ).slider("option","max",20);
-         $( "#base_fontsize_slider" ).slider("option","step",1);
-         $( "#base_fontsize_slider" ).slider("option","value",10);
-         */
+    }
 
+    $(function () {
+        handle = $('#base_fontsize_slider');
+        handle.slider();
         handle.slider("option", "min", 1);
         handle.slider("option", "max", 100);
         handle.slider("option", "step", 1);
         handle.slider("option", "value", s.base_fontsize);
-
-        /*
-         $( "#base_fontsize_slider" ).slider("option","min",10);
-         $( "#base_fontsize_slider" ).slider("option","max",1000);
-         $( "#base_fontsize_slider" ).slider("option","step",3);
-         $( "#base_fontsize_slider" ).slider("option","value",50);
-         */
-        $("#base_fontsize_slider").slider({
+        handle.slider({
             slide: function (event, ui) {
                 base_fontsize_change(event, ui);
             },
@@ -582,13 +573,12 @@ function initialize_wordcloud_controls() {
                 base_fontsize_change(event, ui);
             }
         });
-
     });
 
     function base_opacity_change(event, ui) {
         var sli = $("#base_opacity_slider");
         //var orig_value = $( "#base_opacity_slider" ).slider( "values", num_words_max );
-        var orig_value = sli.slider("values", .5);
+        var orig_value = sli.slider("values", 0.5);
         value = orig_value;
         //DEBUG//document.getElementById('base_opacity_slider_out').innerHTML = value + " " + orig_value;
         //base_opacity = opacity_slider_max_value - value;
@@ -600,7 +590,7 @@ function initialize_wordcloud_controls() {
             "min": 0,
             "value": s.base_opacity,
             "max": s.opacity_slider_max_value,
-            "step": .01,
+            "step": 0.01,
             slide: function (event, ui) {
                 base_opacity_change(event, ui);
             },
@@ -619,7 +609,7 @@ function initialize_wordcloud_controls() {
 //What year is this that sum() is not defined by default!? --GAC
 function sum(l) {
     return l.reduce(function (a, b) {
-        return a + b
+        return a + b;
     });
 }
 /*
@@ -660,18 +650,24 @@ function clone(original, decoratorFunction) {
 
 //Passthrough for the moment, can adapt if the data is not in the expected form (e.g. arbreviz?)
 proc_query_data = function (query) {
-    return query
+    return query;
 };
 
 
 function filter_for_idf(to_filter_dict) {
-    $.each(Object.keys(to_filter_dict), function (index, key) {
-        this_idf = to_filter_dict[key]['idf'];
-        if (this_idf < s.min_req_idf || this_idf > s.max_req_idf) {
-            delete to_filter_dict[key];
-        }
-    });
-};
+    // If 'required_idf_slider' does not exist, then s.min_req_idf and s.max_req_idf
+    // will not be set properly by the callback functions attached to the slider.
+    // Without this guard condition, all words are filtered out when 'required_idf_slider'
+    // does not exist.
+    if (document.getElementById('required_idf_slider')) {
+        $.each(Object.keys(to_filter_dict), function (index, key) {
+            this_idf = to_filter_dict[key].idf;
+            if (this_idf < s.min_req_idf || this_idf > s.max_req_idf) {
+                delete to_filter_dict[key];
+            }
+        });
+    }
+}
 
 
 function filter_for_characters(to_filter_dict) {
@@ -681,7 +677,7 @@ function filter_for_characters(to_filter_dict) {
             delete to_filter_dict[key];
         }
     });
-};
+}
 
 //TODO: Make a function to take an arbitrary number of dicts to filter, and filter on the sum of their tfs
 
@@ -695,7 +691,7 @@ function filter_for_required_tf(to_filter_dicts) {
             to_filter_dict = to_filter_dicts; // passed {}
         }
         $.each(Object.keys(to_filter_dict), function (index, key) {
-            this_tf = to_filter_dict[key]['tf'];
+            this_tf = to_filter_dict[key].tf;
             //if (this_tf < s.min_req_tf || this_tf > s.max_req_tf )  {
             if (key != 'orioles' && (this_tf < s.min_req_tf || this_tf > s.max_req_tf )) {///HARDCODE WHY!?
                 delete to_filter_dict[key];
@@ -703,13 +699,14 @@ function filter_for_required_tf(to_filter_dicts) {
         });
         return;
     }
-    ;
+
     //If we're passed [{},{},...] sum the occurences of each token across all objects before applying filter
     var all_tokens = {}; //Keyed on token, value is summed tf
-    for (var index = 0, len = to_filter_dicts.length; index < len; index++) {
+    var index, len;
+    for (index = 0, len = to_filter_dicts.length; index < len; index++) {
         to_filter_dict = to_filter_dicts[index];
         $.each(Object.keys(to_filter_dict), function (index, key) {
-            this_tf = to_filter_dict[key]['tf']
+            this_tf = to_filter_dict[key].tf;
             if (key in all_tokens) {
                 all_tokens[key] += this_tf;
             }
@@ -722,16 +719,14 @@ function filter_for_required_tf(to_filter_dicts) {
     $.each(Object.keys(all_tokens), function (index, key) {
         combined_tf = all_tokens[key];
         if (combined_tf < s.min_req_tf || combined_tf > s.max_req_tf) {
-            for (var index = 0, len = to_filter_dicts.length; index < len; index++) {
+            for (index = 0, len = to_filter_dicts.length; index < len; index++) {
                 to_filter_dict = to_filter_dicts[index];
                 //if (key in to_filter_dict){
                 if (key in to_filter_dict && key != 'orioles') {
                     delete to_filter_dict[key];
                 }
             }
-            ;
         }
-        ;
     });
 }
 
@@ -739,12 +734,12 @@ function filter_for_required_observations_and_idf(to_filter_dict) {
     //TODO: classifier score
     filter_for_idf(to_filter_dict);
     $.each(Object.keys(to_filter_dict), function (index, key) {
-        this_tf = to_filter_dict[key]['tf'];
+        this_tf = to_filter_dict[key].tf;
         if (this_tf < s.min_req_tf || this_tf > s.max_req_tf) {
             delete to_filter_dict[key];
         }
     });
-};
+}
 
 //This function might not actually be needed, given how we constructed compute master data
 function filter_multiple_for_required_tf_and_idf(to_filter_dicts) {
@@ -752,26 +747,31 @@ function filter_multiple_for_required_tf_and_idf(to_filter_dicts) {
     for (var index = 0, len = to_filter_dicts.length; index < len; index++) {
         filter_for_idf(to_filter_dicts[index]);
     }
-    ;
+
     //Filter them jointly for tf
     filter_for_required_tf(to_filter_dicts);
-};
+}
 
 //TODO: Add displays necessary to make this function
 function filter_for_display_entities_types(to_filter) {
-    s.display_words = $('#display_plain_words').is(':checked');
+    if (document.getElementById('display_plain_words')) {
+        s.display_words = $('#display_plain_words').is(':checked');
+    }
+    else {
+        // Wordcloud should be displayed even if DOM is missing 'display_plain_words' checkbox
+        s.display_words = true;
+    }
     s.display_hashtags = $('#display_hashtags').is(':checked');
     s.display_user_mentions = $('#display_user_mentions').is(':checked');
 
     if (s.display_words && s.display_user_mentions && s.display_hashtags) {
         return to_filter; //All types selected, this is just a passthrough
     }
-    ;
 
     //filtered = [];
     //console.log(to_filter);
     $.each(Object.keys(to_filter), function (index, i) {
-        key = to_filter[i]['text'];
+        key = to_filter[i].text;
         if (key[0] == '@') {
             if (!s.display_user_mentions) {
                 delete to_filter[i];
@@ -787,53 +787,59 @@ function filter_for_display_entities_types(to_filter) {
                 delete to_filter[i];
             }
         }
-        ;
     });
     //return filtered;
     return to_filter;
-};
+}
 
 
 //Sorting
 function sorter(to_sort, my_sort_type) {
     to_sort.sort(function (a, b) {
-        return b['text'] < a['text']
+        return b.text < a.text;
     }); // The default is alphabetic
-    my_sort_type === 'IDF' ? to_sort.sort(function (a, b) {
-        return b['idf'] - a['idf']
-    }) : null; // Reverse, so rarer words are on top
-    my_sort_type === 'COUNT' ? to_sort.sort(function (a, b) {
-        return b['tf'] - a['tf']
-    }) : null;
+    if (my_sort_type === 'IDF') {
+        to_sort.sort(function (a, b) {
+            return b.idf - a.idf;
+        });
+    } // Reverse, so rarer words are on top
+    if (my_sort_type === 'COUNT') {
+        to_sort.sort(function (a, b) {
+            return b.tf - a.tf;
+        });
+    }
     return to_sort;
-};
+}
 
 function preference_sorter(to_sort) {
     //Sort by what the user has specified
     s.sort_type = $("#radio :radio:checked").attr('id');
     sorted = sorter(to_sort, s.sort_type);
     return sorted;
-};
+}
 
 
 //Size and Opacity calculations
 get_size = function (count, idf) {
-    weighted_by_count = count * (10 / overall_max_observed); //HARDCODE??
-    weighted_by_rarity_size = 1 / Math.log(1 / idf);
-    weighted_size = s.base_fontsize; // A base size
+    var weighted_by_count = count * (10 / overall_max_observed); //HARDCODE??
+    // When IDF=1, weighted_by_rarity_size=Infinity, which causes weighted_size
+    // to be set to Infinity - which makes all fonts have the same (maximum) size
+    //var weighted_by_rarity_size = 1 / Math.log(1 / idf); //HARDCODE turned off
+    var weighted_by_rarity_size = 1;
+    var weighted_size = s.base_fontsize; // A base size
     //console.log(weighted_size, weighted_by_rarity_size, weighted_by_count, count, idf);
     weighted_size *= (1 - s.size_frequency_weight) + s.size_frequency_weight * weighted_by_count;
     weighted_size *= (1 - s.size_rarity_weight) + (s.size_rarity_weight * weighted_by_rarity_size);
     //DEBUG.innerHTML = "~!" + (1-rarity_weight) * unweighted_by_rarity_size + "~~" + rarity_weight * idf + "!@!" + max_observed_count;
     if (weighted_size < 10) {
-        return 10
+        return 10;
     }
-    ;
+
     if (weighted_size > 60) {
-        return 60
+        return 60;
     }
-    ;
-    return(weighted_size)
+
+    return(weighted_size);
 };
 
 
@@ -846,12 +852,12 @@ get_opacity = function (count, idf) {
     if (weighted_opacity < 0.1) {
         weighted_opacity = 0.1;
     }
-    ;
+
     if (weighted_opacity > 1) {
         weighted_opacity = 1;
     }
-    ;
-    return(weighted_opacity)
+
+    return(weighted_opacity);
 };
 
 
@@ -861,14 +867,14 @@ function update_wordcloud() {
     for (var cloud_index = 0, numclouds = current_display_data.length; cloud_index < numclouds; cloud_index++) {
         $.each(Object.keys(current_display_data[cloud_index]), function (index) {
             token = current_display_data[cloud_index][index];
-            var token_element = token['handle'];
-            token_element.style.fontSize = get_size(token['tf'], token['idf']) + 'pt';
-            token_element.style.opacity = get_opacity(token['tf'], token['idf']);
+            var token_element = token.handle;
+            token_element.style.fontSize = get_size(token.tf, token.idf) + 'pt';
+            token_element.style.opacity = get_opacity(token.tf, token.idf);
         });
     }
-    ;
+
     add_description_to_display();
-};
+}
 
 
 function prepare_wordcloud_data(selected_datasets) {
@@ -887,23 +893,21 @@ function prepare_wordcloud_data(selected_datasets) {
     else {
         alert('Oh shucks, something broke.');
     }
-    ;
 
 
     //Store the dataset(s) selected in current_data
     current_data = []; //Of size 1 for dynamic wordcloud, of size 3 for venncloud
     for (var j = 0, lenj = selected_datasets.length; j < lenj; j++) {
-        var dat = clone(master_datasets[selected_datasets[j]]['tokens']);
+        var dat = clone(master_datasets[selected_datasets[j]].tokens);
 
         //Filter for idf,tf,entity types
         dat = filter_for_display_entities_types(dat);
         filter_for_idf(dat);
 
-	filter_for_characters(dat)
+        filter_for_characters(dat);
 
         current_data.push(dat);
     }
-    ;
 
     filter_for_required_tf(current_data);
 
@@ -934,36 +938,34 @@ function prepare_wordcloud_data(selected_datasets) {
         for (var token in all_tokens) {
             //TODO: classifier scores
 
-            var l_prop = L[token] && L[token]['prop_tokens'] || 0;
-            var l_tf = L[token] && L[token]['tf'] || 0;
-            var r_prop = R[token] && R[token]['prop_tokens'] || 0;
-            var r_tf = R[token] && R[token]['tf'] || 0;
+            var l_prop = L[token] && L[token].prop_tokens || 0;
+            var l_tf = L[token] && L[token].tf || 0;
+            var r_prop = R[token] && R[token].prop_tokens || 0;
+            var r_tf = R[token] && R[token].tf || 0;
 
             if (r_tf > 0 && l_tf > 0 &&
                 Math.abs((l_prop - r_prop) / (l_prop + r_prop)) <= s.center_threshold) {
                 common_token = {};
-                common_token['text'] = token;
-                common_token['tf'] = (l_tf + r_tf); // Shoudl we average instead of add?
-                common_token['idf'] = L[token]['idf'];
+                common_token.text = token;
+                common_token.tf = (l_tf + r_tf); // Shoudl we average instead of add?
+                common_token.idf = L[token].idf;
                 //Add classifier scores?
                 common_list.push(common_token);
             }
             else {
-                r_prop < l_prop ? left_list.push(L[token]) :
+                if (r_prop < l_prop) {
+                    left_list.push(L[token]);
+                }
+                else {
                     right_list.push(R[token]);
+                }
             }
-            ;
+
         }
-        ;
-
-
     }
-    ;
-
 
     //Sort
     $.map(current_display_data, preference_sorter);
-
 
     /*
 
@@ -978,20 +980,20 @@ function prepare_wordcloud_data(selected_datasets) {
      };
      */
 
-};
+}
 
 
 function tf_size_weight_str() {
-    return "TF:" + Math.round(s.size_frequency_weight * 100) / 100
+    return "TF:" + Math.round(s.size_frequency_weight * 100) / 100;
 }
 function idf_size_weight_str() {
-    return "IDF:" + Math.round(s.size_rarity_weight * 100) / 100
+    return "IDF:" + Math.round(s.size_rarity_weight * 100) / 100;
 }
 function tf_opacity_weight_str() {
-    return "TF:" + Math.round(s.opacity_frequency_weight * 100) / 100
+    return "TF:" + Math.round(s.opacity_frequency_weight * 100) / 100;
 }
 function idf_opacity_weight_str() {
-    return "IDF:" + Math.round(s.opacity_rarity_weight * 100) / 100
+    return "IDF:" + Math.round(s.opacity_rarity_weight * 100) / 100;
 }
 
 function add_description_to_display() {
@@ -1003,55 +1005,46 @@ function add_description_to_display() {
         if (s.size_rarity_weight > 0) {
             d += "Larger words frequently occur in the query and rarely occur in the corpus (TF*IDF). ";
             d += "[" + tf_size_weight_str() + "," + idf_size_weight_str() + "]";
-            d += "<BR>"
+            d += "<BR>";
         }
         else {
             d += "Larger words are more frquent in the query (TF). [" + tf_size_weight_str() + "]<BR>";
         }
-        ;
     }
     else {
         if (s.size_rarity_weight > 0) {
             d += "Larger words are rarer in the whole corpus (IDF). [" + idf_size_weight_str() + "<BR>";
         }
-        ;
     }
-    ;
 
     if (s.opacity_frequency_weight > 0) {
         if (s.opacity_rarity_weight < 1) {
-            d += "Darker words frequently occur in the query and rarely occur in the corpus (TF*IDF). "
+            d += "Darker words frequently occur in the query and rarely occur in the corpus (TF*IDF). ";
             d += "[" + tf_opacity_weight_str() + "," + idf_opacity_weight_str() + "]";
             d += "<BR>";
         }
         else {
             d += "Darker words are more frequent in the query (TF). [" + tf_opacity_weight_str() + "]<BR>";
         }
-        ;
     }
     else {
         if (s.opacity_rarity_weight < 1) {
             d += "Darker words are rarer in the whole corpus (IDF). [" + idf_opacity_weight_str() + "]<BR>";
         }
-        ;
     }
-    ;
 
     if (s.sort_type == "ALPHABETIC") {
         d += "Words are sorted alphabetically.<BR>";
     }
-    ;
     if (s.sort_type == "IDF") {
         d += "Words are sorted by those that occur in the fewest document to those that occur in the most, in the whole corpus (IDF).<BR>";
     }
-    ;
     if (s.sort_type == "COUNT") {
         d += "Words are sorted by many to few occurences in the query (TF).<BR>";
     }
-    ;
 
     $('#wordcloud_description_output').html(d);
-};
+}
 
 
 function paint_tokens(display, data, color) {
@@ -1062,20 +1055,30 @@ function paint_tokens(display, data, color) {
         attr.nodeValue = element_id;
         token_element.setAttributeNode(attr);
 
-        token_element.textContent = ' ' + t['text'] + ' ';
+        token_element.textContent = ' ' + t.text + ' ';
 
         token_element.style.fontSize = '2pt';
         token_element.style.color = color;
 
-        t['handle'] = token_element;
+        if (t.span_classes) {
+          for (var i in t.span_classes) {
+            token_element.classList.add(t.span_classes[i]);
+          }
+        }
+
+        t.handle = token_element;
 
         //Actually add to the display
         display.append(token_element);
     });
-};
+}
 
 
 function draw_wordcloud() {
+    //Prevent from running if we don't have datasets selected
+    if  (selected_datasets.length === 0){
+        return;
+    }
 
     display_index_in_master_data = selected_datasets;
 
@@ -1140,8 +1143,6 @@ function draw_wordcloud() {
         paint_tokens($('span#commoncloud'), current_display_data[1], 'black');
         paint_tokens($('span#rightcloud'), current_display_data[2], 'red');
     }
-    ;
-
 
     // Call update to get actual values correct
     update_wordcloud();
@@ -1154,9 +1155,39 @@ function draw_wordcloud() {
 
     // Turn the display on
     main_wordcloud_container.show();
-
-
 }
+
+
+function update_displayed_token(old_token, new_token){
+    console.log("updating "+old_token+" with "+new_token);
+    //Loop through each dataset and update the token
+    for (var j in master_datasets){
+        dataset = master_datasets[j].tokens;
+        console.log(dataset);
+        //TODO: this does not properly update and combine tokens!!
+        if (old_token in dataset){
+            dataset[old_token].text = new_token;
+            master_datasets[j].tokens[new_token] = dataset[old_token];
+            delete master_datasets[j].tokens[old_token];
+        }
+    }
+    draw_wordcloud();
+}
+
+
+function junk_displayed_token(old_token){
+    console.log("junking "+old_token);
+    //Loop through each dataset and remove the token
+    for (var j in master_datasets){
+        dataset = master_datasets[j].tokens;
+        if (old_token in dataset){
+            delete master_datasets[j].tokens[old_token];
+        }
+    }
+    draw_wordcloud();
+}
+
+
 var counts = [];
 function compute_master_data(datasets) {
     var idfs = [];
@@ -1165,16 +1196,16 @@ function compute_master_data(datasets) {
     //Add fields to each dataset
     for (var j = 0, lenj = datasets.length; j < lenj; j += 1) {
         var dataset = datasets[j];
-        var tokens = dataset['tokens'];
-        var num_tokens = dataset['num_tokens'];
-        var num_documents = dataset['num_documents'];
+        var tokens = dataset.tokens;
+        var num_tokens = dataset.num_tokens;
+        var num_documents = dataset.num_documents;
         var tok_rep = {}; //indexed version of the 'tokens' field
         for (var i = 0, len = tokens.length; i < len; i += 1) {
-            var tf = tokens[i]['tf'];
-            var idf = tokens[i]['idf'];
+            var tf = tokens[i].tf;
+            var idf = tokens[i].idf;
             counts.push(tf);
             idfs.push(idf);
-            token = tokens[i]['text'];
+            token = tokens[i].text;
             tokens[i].opacity = 1;
             tokens[i].size = 9;
             tokens[i].handle = undefined; //This will be the jquery visual element handle for easy updates
@@ -1183,13 +1214,18 @@ function compute_master_data(datasets) {
             tok_rep[token] = tokens[i];
 
             //update max and mins observed if needed
-            (tf > overall_max_observed) ? overall_max_observed = tf : null; //This is slightly different from the last iteration
-            (idf < overall_min_idf_observed) ? overall_min_idf_observed = idf : null;
-	    (token.length > overall_max_word_length_observed) ? overall_max_word_length_observed = token.length: null;
-
+            if (tf > overall_max_observed) {
+                overall_max_observed = tf;
+            } //This is slightly different from the last iteration
+            if (idf < overall_min_idf_observed) {
+                overall_min_idf_observed = idf;
+            }
+            if (token.length > overall_max_word_length_observed) {
+                overall_max_word_length_observed = token.length;
+            }
         }
         //Convert all master data arrays to dictionaries keyed on tokens
-        datasets[j]['tokens'] = tok_rep;
+        datasets[j].tokens = tok_rep;
 
     }
     //Put anything here we can precompute on load for all datasets, independent of view.
@@ -1228,7 +1264,7 @@ function compute_master_data(datasets) {
 
     tmp = [s.min_req_chars, s.max_req_chars];
     $("#required_characters_slider").slider("option", "values", tmp);
-    
+
 
     return datasets;
 }
@@ -1236,7 +1272,7 @@ function add_handlers(zone) {
     //console.log("Z:",zone);
     zone.on("click", function (e) {
         e = e || Event;
-        s.onclick_function(e.target.innerHTML.trim())
+        s.onclick_function(e.target.innerHTML.trim());
     });
     zone.on("contextmenu", function (e) {
         e = e || Event;
@@ -1257,24 +1293,20 @@ function dataset_selected() {
 	draw_wordcloud();
 }
 
-function defaulLeftClickHandler(token){
-    default_example_onclick(token);
-}
-function defaulRightClickHandler(token){
-
-}
-
 function make_me_a_venncloud(datasets, options) {
     //Datasets is always an array of token dictionaries
 
-    var min_observations_required = options.min_observations_required || 2;
-    //var onclick_function=function(token){} || options.click;
-    s.onclick_function = options.click || defaulLeftClickHandler;
-    s.oncontextclick_function = options.contextclick || defaulRightClickHandler;
+    //Merge user-provided options and default settings
+    $.extend(s, options);
 
-    var wordcloud_element = options.wordcloud_element || 'wordcloud_location';
-
-    s.wordcloud_element = wordcloud_element;
+    //For backwards compatibility with older code that calls this function,
+    //allow click handlers to be specified using alternate names
+    if (options.click) {
+        s.onclick_function = options.click;
+    }
+    if (options.contextclick) {
+        s.oncontextclick_function = options.contextclick;
+    }
 
     initialize_wordcloud_controls();
 
@@ -1283,12 +1315,12 @@ function make_me_a_venncloud(datasets, options) {
     var initialSelection = [];
     if (master_datasets.length > 0) initialSelection.push(0);
     if (master_datasets.length > 1) initialSelection.push(1);
-	selected_datasets = initialSelection;
+    selected_datasets = initialSelection;
     draw_wordcloud();
 
     hide_example_windows();
 
-    main_wordcloud_container = $('#' + wordcloud_element);
-    var context_area = $('#' + wordcloud_element + '>table>tbody');
+    main_wordcloud_container = $('#' + s.wordcloud_element);
+    var context_area = $('#' + s.wordcloud_element + '>table>tbody');
 
 }
