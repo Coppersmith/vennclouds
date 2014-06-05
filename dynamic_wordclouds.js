@@ -135,7 +135,7 @@ function default_example_onclick(token) {
         var r_tokens = master_datasets[display_index_in_master_data[1]].tokens;
         var r_str_exs = 'N/A';
         if (token in r_tokens) {
-            r_str_exs = r_tokens[token].examples.join('<BR><HR>');
+            r_str_exs = r_tokens[token].examples.join('<div style="font-size:5pt">&nbsp;<BR></div>');
         }
         $('#examples_right').html(r_str_exs);
     }
@@ -143,7 +143,7 @@ function default_example_onclick(token) {
     var l_tokens = master_datasets[display_index_in_master_data[0]].tokens;
     var l_str_exs = 'N/A';
     if (token in l_tokens) {
-        l_str_exs = l_tokens[token].examples.join('<BR><HR>');
+        l_str_exs = l_tokens[token].examples.join('<div style="font-size:5pt">&nbsp;<BR></div>');
     }
     $('#examples_left').html(l_str_exs);
 
