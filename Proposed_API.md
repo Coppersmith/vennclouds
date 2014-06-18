@@ -42,6 +42,7 @@ Tokens
 ======
 
 Each token is a dictionary:
+
   * `idf` - **[required]**
   * `tf` - **[required]**
   * `text` - **[required]**
