@@ -104,7 +104,7 @@ where `doc1.txt`, `doc2.txt.`, `doc3.txt` are text documents, one document per l
 2) Create an idf vector for use later:
 
 ```bash
-python create_idf_vector  --output this_idf_vector.json blue.txt red.txt some_text_file.txt
+python create_idf_vector.py  --output this_idf_vector.json blue.txt red.txt some_text_file.txt
 ```
 
 where `blue.txt', `red.txt' and `some_text_file.txt' are plain text documents with one document per line. 
