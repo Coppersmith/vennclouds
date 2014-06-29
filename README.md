@@ -9,6 +9,17 @@ Glen Coppersmith and Erin Kelly (2014). Dynamic Wordclouds and Vennclouds for Ex
 Association for Computational Linguistics Workshop on Interactive Language Learning and Visualization.
 
 
+---
+Quick Start
+---
+
+```
+# Generate IDF vector
+python create_idf_vector.py --files shakespeare/* --output mytitle.json
+
+# Generate interactive web page
+python dynamic_wordclouds.py shakespeare/* --idf mytitle.json --output shakespeare.html
+```
 
 [[This README is currently out of data, for usage instructions run:
 python dynamic_wordclouds.py --help ]]
