@@ -9,6 +9,17 @@ Glen Coppersmith and Erin Kelly (2014). Dynamic Wordclouds and Vennclouds for Ex
 Association for Computational Linguistics Workshop on Interactive Language Learning and Visualization.
 
 
+---
+Quick Start
+---
+
+```
+# Generate IDF vector
+python create_idf_vector.py --files shakespeare/* --output mytitle.json
+
+# Generate interactive web page
+python dynamic_wordclouds.py shakespeare/* --idf mytitle.json --output shakespeare.html
+```
 
 [[This README is currently out of data, for usage instructions run:
 python dynamic_wordclouds.py --help ]]
@@ -104,7 +115,7 @@ where `doc1.txt`, `doc2.txt.`, `doc3.txt` are text documents, one document per l
 2) Create an idf vector for use later:
 
 ```bash
-python create_idf_vector  --output this_idf_vector.json blue.txt red.txt some_text_file.txt
+python create_idf_vector.py  --output this_idf_vector.json blue.txt red.txt some_text_file.txt
 ```
 
 where `blue.txt', `red.txt' and `some_text_file.txt' are plain text documents with one document per line. 
