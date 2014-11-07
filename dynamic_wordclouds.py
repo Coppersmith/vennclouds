@@ -4,7 +4,7 @@ try:
     import ujson as json
 except:
     import json
-
+import remmets
 
 
 wd = './' #TODO: what do we want the wd to be?
@@ -13,28 +13,6 @@ import re
 text_ex = re.compile(ur"[\w'#@]+", re.UNICODE)
 text_URL_ex = re.compile(ur"http[s]{0,1}://\S+|[\w'#@]+", re.UNICODE)
 #TODO: allow tokenization options
-"""
-def tokenize( s, as_set=False ):
-    if s:
-        #return text_URL_ex.findall(s)
-        if as_set:
-            return list(set(text_URL_ex.findall(s.strip())))
-        else:
-            return text_URL_ex.findall(s.strip())
-    else:
-        return []
-"""
-"""
-def tokenize( s, as_set=False ):
-    if s:
-        #return text_URL_ex.findall(s)
-        if as_set:
-            return list(set(text_URL_ex.findall(s.strip())))
-        else:
-            return text_URL_ex.findall(s.strip())
-    else:
-        return []
-   """
 #TODO allow different stripping regex options
 #stripper_ex = re.compile(ur"http[s]{0,1}://\S+|[\b\W]",re.UNICODE)
 stripper_ex = re.compile(ur"http[s]{0,1}://\S+|[ ,.\"!:;\-&*\(\)\[\]]",re.UNICODE)
@@ -47,6 +25,17 @@ def tokenize( s, as_set=False ):
         else:
             #return text_URL_ex.findall(s.strip())
             return filter(None,[x.strip() for x in stripper_ex.split(s.strip())])
+    else:
+        return []
+
+def stem_tokenize(s, as_set=False, stemmer=None):
+    if s:
+        list_of_words = filter(None,[x.strip() for x in stripper_ex.split(s.strip())])
+        list_of_words = [stemmer.stem(w) for w in list_of_words]
+        if as_set:
+            return list(set(list_of_words))
+        else:
+            return list_of_words
     else:
         return []
 
@@ -68,7 +57,6 @@ def normalize( s ):
         a = a.encode('utf-8')
     except UnicodeDecodeError, TypeError:
         print "problem on unicode decode:", s
-        import sys
         sys.exit()
         return ""
     #return unicode(s,'unicode-escape').encode('utf-8','replace').lower()
@@ -81,7 +69,8 @@ def normalize( s ):
     ##s_prime = re.sub(r'[\x80-\xFF]+', " ", s_prime)
     #print s_prime
     #s_prime = s_prime.replace(u'\u0xe2',' ')
-    final_string = unicode(s_prime).encode('utf-8').lower()
+    #final_string = unicode(s_prime).encode('utf-8').lower()
+    final_string = s_prime.decode('utf-8').lower()
     #print "FINAL:",final_string
     return final_string
 #return s.lower().replace('-','').replace(',','').replace('.','').replace("'",'').replace('  ','')
@@ -95,7 +84,7 @@ reservoir_random.seed(11223344)
 ######################################################################
 
 df = {}
-def add_string_to_idf_vector(s,df=df):
+def add_string_to_idf_vector(s,df=df,stemmer=None):
     tokens = set(tokenize(normalize(s)))
     for token in tokens:
         if token in df:
@@ -103,7 +92,7 @@ def add_string_to_idf_vector(s,df=df):
         else:
             df[token] = 1
 
-def add_string_to_tf_vector(s,tf,examples,test_unicode_problems=True,max_examples=5):
+def add_string_to_tf_vector(s,tf,examples,max_examples=5,stemmer=None,test_unicode_problems=True):
     norm_s = normalize(s)
     if test_unicode_problems:
         try:
@@ -114,6 +103,10 @@ def add_string_to_tf_vector(s,tf,examples,test_unicode_problems=True,max_example
     tokens = tokenize(norm_s)
             
     for index,token in enumerate(tokens):
+
+        if stemmer:
+            token = stemmer.stem(token)
+
         if token in tf:
             tf[token] += 1
         else:
@@ -153,25 +146,25 @@ def create_idf_vector_from_df( df, required_count=2):
     return idf
     
 
-def create_idf_vector_from_docs(docs):
+def create_idf_vector_from_docs(docs, stemmer=None):
     df={}
     for s in docs:
         if s.strip():
-            add_string_to_idf_vector(s,df=df)
+            add_string_to_idf_vector(s,df,stemmer)
     return create_idf_vector_from_df(df)
                 
-def create_idf_vector_from_doc_locs(doc_locs, one_doc_per_line=True, required_count=2):
+def create_idf_vector_from_doc_locs(doc_locs, stemmer=None, one_doc_per_line=True, required_count=2):
     """Assumes one document per line, multiple documents allowed by default"""
     df={}
     if one_doc_per_line:
         for doc in doc_locs:
             for s in open(doc):
                 if s.strip():
-                    add_string_to_idf_vector(s,df=df)
+                    add_string_to_idf_vector(s,df,stemmer)
     else: #One document per text file
         for doc in doc_locs:
-            add_string_to_idf_vector(open(doc).read().replace('\n',''),df=df)
-    return create_idf_vector_from_df(df, required_count=required_count)
+            add_string_to_idf_vector(open(doc).read().replace('\n',''),df,stemmer)
+    return create_idf_vector_from_df(df, required_count)
 
 
 def create_token_vector(tf_vector,idf_vector,examples,other_scores={}):
@@ -198,7 +191,7 @@ def create_token_vector(tf_vector,idf_vector,examples,other_scores={}):
 # Dynamic Wordcloud and Venncloud creation #
 ############################################
 
-def create_dynamic_wordclouds(input_locs, idf, output_loc, from_text_files=True, max_examples=5, 
+def create_dynamic_wordclouds(input_locs, idf, output_loc, max_examples=5, stemmer=None, from_text_files=True,
                               dataset_names=[], template_loc = wd+'venncloud_template.html'):
     """
     This actually creates and writes to file the Venncloud.
@@ -239,7 +232,7 @@ def create_dynamic_wordclouds(input_locs, idf, output_loc, from_text_files=True,
         examples = {}
         num_docs = 0
         for doc in IN:
-            add_string_to_tf_vector(doc, tf, examples, max_examples=max_examples)
+            add_string_to_tf_vector(doc, tf, examples, max_examples, stemmer)
             num_docs += 1
 
         #Normalizing by tokens works way better than normalizing by documents -- very sensitive to this.
@@ -286,7 +279,6 @@ def create_dynamic_wordclouds(input_locs, idf, output_loc, from_text_files=True,
         print "Unicode problem, trying to diagnose..."
         #TODO: Refactor to deal with unicode failures
         print "This portion of the code has not been refactored yet... failing."
-        import sys
         sys.exit()
         for i,te in enumerate(red_examples.items()):
             term,examples = te
@@ -362,6 +354,7 @@ if __name__ == '__main__':
         usage = """ usage: dynamic_wordclouds.py [-h] [--output OUTPUT] [--idf IDF]
                              [--examples EXAMPLES] [--window WINDOW]
                              [--minimum-frequency MINIMUM_FREQUENCY]
+                             [--stem]
                              N [N ...]
                                                                   """
         parser = OptionParser(usage=usage)
@@ -370,6 +363,8 @@ if __name__ == '__main__':
         parser.add_option('--examples',dest='examples',action='store',help='Number of examples of each word to store [defaults to 5].',default=5)
         parser.add_option('--window',dest='window',action='store',help='Window size on each side for each example, in number of tokens [defaults to 5].',default=5)
         parser.add_option('--minimum-frequency',dest='min_freq',action='store',help='Minimum occurences of a word included in the Venncloud data [defaults to 3].', default=3)
+        parser.add_option('--stem',dest='stem',action='store_true',help='Stem word clouds.', default=False)
+        parser.set_defaults(stem=False)
 
         (options,args) = parser.parse_args()
         input_locs = args
@@ -378,6 +373,7 @@ if __name__ == '__main__':
         num_examples = int(options.examples)
         example_window = int(options.window)
         minimum_frequency = int(options.min_freq)
+        stem = args['stem']
 
     else:
         parser = argparse.ArgumentParser(description='Create a Venncloud html file.')
@@ -386,6 +382,8 @@ if __name__ == '__main__':
         parser.add_argument('--examples',action='store',help='Number of examples of each word to store [defaults to 5].',default=5)
         parser.add_argument('--window',action='store',help='Window size on each side for each example, in number of tokens [defaults to 5].',default=5)
         parser.add_argument('--minimum-frequency',action='store',help='Minimum occurences of a word included in the venncloud data [defaults to 3].',default=3)
+        parser.add_argument('--stem',action='store_true',help='Stem word clouds.', default=False)
+        parser.set_defaults(stem=False)
         parser.add_argument('documents', metavar='N', nargs='+',
                             help='Location of the documents for the datasets to be loaded -- plain text, 1 document per line.')
 
@@ -397,6 +395,7 @@ if __name__ == '__main__':
         num_examples = int(args['examples'])
         example_window = int(args['window'])
         minimum_frequency = int(args['minimum_frequency'])
+        stem = args['stem']
         
 
         
@@ -413,16 +412,20 @@ if __name__ == '__main__':
     #Load the IDF vector
 
     idf = {}
+    stemmer = None
     if idf_loc: #Load the idf vector, if precomputed
-        import json
         idf = json.load(open(idf_loc))
     else: #Create the idf vector from the existing docs
         alldocs = []
         for loc in input_locs:
             alldocs += open(loc).readlines()
+        if stem:
+            #stemmer = remmets.LCNStemmer("LCN Shakespeare", 5)
+            stemmer = remmets.TruncStemmer("trunc Shakespeare", 5)
+            stemmer.train(alldocs)
         idf = create_idf_vector_from_docs( alldocs )
 
-    create_dynamic_wordclouds(input_locs,idf,output_loc,max_examples=num_examples)
+    create_dynamic_wordclouds(input_locs,idf,output_loc,num_examples,stemmer)
 
 
 
