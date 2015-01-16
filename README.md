@@ -7,7 +7,7 @@ Author: Aleksander Yelskiy (ayelskiy@gmail.com)
 If you use this, please cite the following paper:
 Glen Coppersmith and Erin Kelly (2014). Dynamic Wordclouds and Vennclouds for Exploratory Data Analysis.
 Association for Computational Linguistics Workshop on Interactive Language Learning and Visualization.
-
+A PDF of this paper is included in the repo as `Vennclouds.pdf`.
 
 ---
 Quick Start
