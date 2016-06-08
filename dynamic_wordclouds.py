@@ -92,7 +92,7 @@ def add_string_to_idf_vector(s,df=df,stemmer=None):
         else:
             df[token] = 1
 
-def add_string_to_tf_vector(s,tf,examples,max_examples=5,stemmer=None,test_unicode_problems=True):
+def add_string_to_tf_vector(s,tf,examples,max_examples=5,stemmer=None,test_unicode_problems=True,example_window=5):
     norm_s = normalize(s)
     if test_unicode_problems:
         try:
@@ -146,12 +146,12 @@ def create_idf_vector_from_df( df, required_count=2):
     return idf
     
 
-def create_idf_vector_from_docs(docs, stemmer=None):
+def create_idf_vector_from_docs(docs, stemmer=None, required_count=2):
     df={}
     for s in docs:
         if s.strip():
             add_string_to_idf_vector(s,df,stemmer)
-    return create_idf_vector_from_df(df)
+    return create_idf_vector_from_df(df,required_count=required_count)
                 
 def create_idf_vector_from_doc_locs(doc_locs, stemmer=None, one_doc_per_line=True, required_count=2):
     """Assumes one document per line, multiple documents allowed by default"""
@@ -192,7 +192,7 @@ def create_token_vector(tf_vector,idf_vector,examples,other_scores={}):
 ############################################
 
 def create_dynamic_wordclouds(input_locs, idf, output_loc, max_examples=5, stemmer=None, from_text_files=True,
-                              dataset_names=[], template_loc = wd+'venncloud_template.html'):
+                              dataset_names=[], template_loc = wd+'venncloud_template.html', minimum_frequency=3):
     """
     This actually creates and writes to file the Venncloud.
     Required Arguments:
