@@ -192,7 +192,8 @@ def create_token_vector(tf_vector,idf_vector,examples,other_scores={}):
 ############################################
 
 def create_dynamic_wordclouds(input_locs, idf, output_loc, max_examples=5, stemmer=None, from_text_files=True,
-                              dataset_names=[], template_loc = wd+'venncloud_template.html', minimum_frequency=3):
+                              dataset_names=[], template_loc = wd+'venncloud_template.html', 
+                              minimum_frequency=3,example_window=5):
     """
     This actually creates and writes to file the Venncloud.
     Required Arguments:
@@ -232,7 +233,7 @@ def create_dynamic_wordclouds(input_locs, idf, output_loc, max_examples=5, stemm
         examples = {}
         num_docs = 0
         for doc in IN:
-            add_string_to_tf_vector(doc, tf, examples, max_examples, stemmer)
+            add_string_to_tf_vector(doc, tf, examples, max_examples, stemmer, example_window=example_window)
             num_docs += 1
 
         #Normalizing by tokens works way better than normalizing by documents -- very sensitive to this.
@@ -425,7 +426,8 @@ if __name__ == '__main__':
             stemmer.train(alldocs)
         idf = create_idf_vector_from_docs( alldocs )
 
-    create_dynamic_wordclouds(input_locs,idf,output_loc,num_examples,stemmer)
+    create_dynamic_wordclouds(input_locs,idf,output_loc,num_examples,stemmer,minimum_frequency=minimum_frequency,
+                              example_window=example_window)
 
 
 
