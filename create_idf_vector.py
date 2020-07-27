@@ -1,12 +1,6 @@
 from __future__ import division
 from dynamic_wordclouds import create_idf_vector_from_doc_locs
 import sys,codecs
-#Unicode fix
-if __name__ == '__main__':
-    reload(sys)
-    sys.setdefaultencoding('utf-8')
-    sys.stdout = codecs.getwriter('utf-8')(sys.stdout)
-    sys.stdout.encoding = 'utf-8'
 
 one_doc_per_line=True
 try:
@@ -26,7 +20,7 @@ try:
         docs = args['files']
         one_doc_per_line=False
     else:
-        print "No documents specified to create IDF vector from, exiting."
+        print("No documents specified to create IDF vector from, exiting.")
         import sys
         sys.exit()
 except ImportError: #If you don't have argparse installed (e.g., python 2.6)
@@ -48,7 +42,7 @@ except ImportError: #If you don't have argparse installed (e.g., python 2.6)
         docs = [options.files] + args
         one_doc_per_line=False
     else:
-        print "No documents specified to create IDF vector from, exiting."
+        print("No documents specified to create IDF vector from, exiting.")
         import sys
         sys.exit()
 

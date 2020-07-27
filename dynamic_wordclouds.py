@@ -10,12 +10,12 @@ import remmets
 wd = './' #TODO: what do we want the wd to be?
 
 import re
-text_ex = re.compile(ur"[\w'#@]+", re.UNICODE)
-text_URL_ex = re.compile(ur"http[s]{0,1}://\S+|[\w'#@]+", re.UNICODE)
+text_ex = re.compile(r"[\w'#@]+", re.UNICODE)
+text_URL_ex = re.compile(r"http[s]{0,1}://\S+|[\w'#@]+", re.UNICODE)
 #TODO: allow tokenization options
 #TODO allow different stripping regex options
 #stripper_ex = re.compile(ur"http[s]{0,1}://\S+|[\b\W]",re.UNICODE)
-stripper_ex = re.compile(ur"http[s]{0,1}://\S+|[ ,.\"!:;\-&*\(\)\[\]]",re.UNICODE)
+stripper_ex = re.compile(r"http[s]{0,1}://\S+|[ ,.\"!:;\-&*\(\)\[\]]",re.UNICODE)
 def tokenize( s, as_set=False ):
     """ Our default tokenization scheme, splitting by what python's `.strip()` function does. """
     if s:
@@ -24,7 +24,8 @@ def tokenize( s, as_set=False ):
             return list(set(filter(None,[x.strip() for x in stripper_ex.split(s.strip())])))
         else:
             #return text_URL_ex.findall(s.strip())
-            return filter(None,[x.strip() for x in stripper_ex.split(s.strip())])
+            ###return filter(None,[x.strip() for x in stripper_ex.split(s.strip())])
+            return list(filter(None,[x.strip() for x in stripper_ex.split(s.strip())]))
     else:
         return []
 
@@ -52,11 +53,16 @@ def normalize( s ):
     TODO: As a last resort, we should use `unidecode` to clean this up """
     try:
         #a = unicode(s,'unicode-escape')
-        a = unicode(s)
+        ##a = unicode(s)
         ####a = a.encode('utf-8','replace')
-        a = a.encode('utf-8')
-    except UnicodeDecodeError, TypeError:
-        print "problem on unicode decode:", s
+        a = s.encode('utf-8')
+        ##a = a.encode('utf-8')
+    except UnicodeDecodeError:
+        print("problem on unicode decode:", s)
+        sys.exit()
+        return ""
+    except TypeError:
+        print("problem on unicode decode:", s)
         sys.exit()
         return ""
     #return unicode(s,'unicode-escape').encode('utf-8','replace').lower()
@@ -70,7 +76,8 @@ def normalize( s ):
     #print s_prime
     #s_prime = s_prime.replace(u'\u0xe2',' ')
     #final_string = unicode(s_prime).encode('utf-8').lower()
-    final_string = s_prime.decode('utf-8').lower()
+    ##final_string = s_prime.decode('utf-8').lower()
+    final_string = s_prime.lower()
     #print "FINAL:",final_string
     return final_string
 #return s.lower().replace('-','').replace(',','').replace('.','').replace("'",'').replace('  ','')
@@ -96,9 +103,10 @@ def add_string_to_tf_vector(s,tf,examples,max_examples=5,stemmer=None,test_unico
     norm_s = normalize(s)
     if test_unicode_problems:
         try:
-            a = unicode(json.dumps(norm_s).decode('utf8','replace'))
+            ##a = unicode(json.dumps(norm_s).decode('utf8','replace'))
+            a = json.dumps(norm_s)
         except UnicodeDecodeError:
-            print 'Unicode Problem, excluding:',norm_s
+            print('Unicode Problem, excluding:',norm_s)
             return
     tokens = tokenize(norm_s)
             
@@ -183,7 +191,7 @@ def create_token_vector(tf_vector,idf_vector,examples,other_scores={}):
             if token in token_scores:
                 this_token[score_name] = token_scores[token]
         tokens.append(this_token)
-    print "TOKENS:",len(tokens)
+    print("TOKENS:",len(tokens))
     return tokens
     
 
@@ -219,10 +227,10 @@ def create_dynamic_wordclouds(input_locs, idf, output_loc, max_examples=5, stemm
                 dataset_name = dataset_names[index]
             except IndexError:
                 dataset_name = "Dataset%s" % index
-            print "Encoding",dataset_name
+            print("Encoding",dataset_name)
         else:
             dataset_name = input_loc.split('/')[-1].split('.')[0]
-            print "Encoding",input_loc,'as',dataset_name
+            print("Encoding",input_loc,'as',dataset_name)
 
         if from_text_files:
             IN = open(input_loc)
@@ -273,13 +281,14 @@ def create_dynamic_wordclouds(input_locs, idf, output_loc, max_examples=5, stemm
         del d['examples']
     
     try:
-        print 'dumping data'
-        jsoned_data = unicode(json.dumps(dataset).decode('utf8','replace'))
-        print 'succeeded without unicode errors'
+        print('dumping data')
+        ##jsoned_data = unicode(json.dumps(dataset).decode('utf8','replace'))
+        jsoned_data = json.dumps(dataset)
+        print('succeeded without unicode errors')
     except UnicodeDecodeError:
-        print "Unicode problem, trying to diagnose..."
+        print("Unicode problem, trying to diagnose...")
         #TODO: Refactor to deal with unicode failures
-        print "This portion of the code has not been refactored yet... failing."
+        print("This portion of the code has not been refactored yet... failing.")
         sys.exit()
         for i,te in enumerate(red_examples.items()):
             term,examples = te
@@ -287,7 +296,7 @@ def create_dynamic_wordclouds(input_locs, idf, output_loc, max_examples=5, stemm
                 a = unicode(json.dumps(term).decode('utf8', 'replace'))
                 a = unicode(json.dumps(examples).decode('utf8', 'replace'))
             except UnicodeDecodeError:
-                print 'Red:', i
+                print('Red:', i)
                 if term in red_raw[0]:
                     del red_raw[0][term]
                 if term in red_raw[2]:
@@ -300,7 +309,7 @@ def create_dynamic_wordclouds(input_locs, idf, output_loc, max_examples=5, stemm
                 a = unicode(json.dumps(term).decode('utf8', 'replace'))
                 a = unicode(json.dumps(examples).decode('utf8', 'replace'))
             except UnicodeDecodeError:
-                print 'Blue:', i
+                print('Blue:', i)
                 if term in blue_raw[0]:
                     del blue_raw[0][term]
                 if term in blue_raw[2]:
@@ -310,7 +319,7 @@ def create_dynamic_wordclouds(input_locs, idf, output_loc, max_examples=5, stemm
         trimmed_idf = {}
         for token in set(blue_tf.keys() + red_tf.keys()):
             if type(token) != type('a'):
-                print "nonstring token:", token
+                print("nonstring token:", token)
             elif token in idf:
                 trimmed_idf[token] = idf[token]
 
@@ -343,10 +352,10 @@ if __name__ == '__main__':
     Run this standalone to generate an encapsulated html file (but we still require the files in `offline_source' to run properly).
     For usage instructions: python deltawc_from_text_files.py -h
     """
-    reload(sys)
-    sys.setdefaultencoding('utf-8')
-    sys.stdout = codecs.getwriter('utf-8')(sys.stdout)
-    sys.stdout.encoding = 'utf-8'
+    ##reload(sys)
+    ##sys.setdefaultencoding('utf-8')
+    ##sys.stdout = codecs.getwriter('utf-8')(sys.stdout)
+    ##sys.stdout.encoding = 'utf-8'
 
     try:
         import argparse
@@ -402,8 +411,8 @@ if __name__ == '__main__':
         
 
     if len(input_locs) < 1:
-        print "Not enough files specified -- run this file with `-h' argument to see the help message."
-        print "You must specify either a set of black documents [for a single wordcloud] or BOTH a red and blue set of documents [for a delta wordcloud]."
+        print("Not enough files specified -- run this file with `-h' argument to see the help message.")
+        print("You must specify either a set of black documents [for a single wordcloud] or BOTH a red and blue set of documents [for a delta wordcloud].")
         import sys
         sys.exit()
 

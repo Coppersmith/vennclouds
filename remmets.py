@@ -223,7 +223,7 @@ if __name__ == '__main__':
 	stembag.sort() # alphabetical
 	for (surface, count, stem) in stembag:
 		sys.stdout.write("%s(%d) " % (surface, count))
-	print ''
+	print('')
 
 	stemmer2 = LCNStemmer('LCN-romeo', order=trunc)
 	stemmer2.train(testtext)
@@ -232,7 +232,7 @@ if __name__ == '__main__':
 	stembag2.sort() # alphabetical
 	for (surface, count, stem) in stembag2:
 		sys.stdout.write("%s(%d) " % (surface, count))
-	print ''
+	print('')
 	
 	for word in text2words('\n'.join(testtext)):
 		s = stemmer2.stem(word)
